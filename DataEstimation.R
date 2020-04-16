@@ -3,7 +3,7 @@ library(parallel)
 library(BaBooN) # Rubin's Rule
 
 # insert path
-setwd("/opt/rdata/phibauma/CausalInflation/GitHubVersion")
+setwd("/cluster/home/phibauma/CausalInflation/")
 
 # load 5 imputed data.frames that are analyzed
 load("causalinfl.RData")
@@ -21,7 +21,6 @@ estimation_ltmle <- function(dat, path = path) {
   load("SelectedLearners.RData")
   # gbm failes frequently and was not selected often during previous analyses
   SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
-  SL.Est_Theory <- SL.Est_Data <- SL.Est_Data[1:2]
   
   # load nodes, g-/Q-formulas and interventions
   load("NodesFormInterv.RData")
