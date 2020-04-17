@@ -41,11 +41,11 @@ D <- D + action("A0", nodes = action_A0)
 
 # preallocate
 # Simulation 1: 2000 df with n = 1000
-Obs_dat <- vector("list", 100)
+Obs_dat <- vector("list", 2000)
 
 # simulate observed data
 for (ind in seq(Obs_dat)) {
-  Obs_dat[[ind]] <- sim(D, n = 100, verbose = FALSE) # observed data
+  Obs_dat[[ind]] <- sim(D, n = 1000, verbose = FALSE) # observed data
 }
 
 # ltmle does not need ID later on
