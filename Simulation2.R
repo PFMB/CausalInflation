@@ -3,6 +3,9 @@ library(simcausal)
 library(ltmle)
 set.seed(123)
 
+# insert path
+setwd("/cluster/home/phibauma/CausalInflation/")
+
 # ------- DEFINE DGP ------- #
 
 ## Simulation 2
@@ -49,7 +52,7 @@ D <- D + action("A0", nodes = action_A0)
 
 # preallocate
 # Simulation 2: 3000 df with n = 1000
-Obs_dat <- vector("list", 3000)
+Obs_dat <- vector("list", 1500)
 
 # simulate observed data
 for (ind in seq(Obs_dat)) {
@@ -62,7 +65,7 @@ Obs_dat <- lapply(Obs_dat, function(x) x[, -1, drop = FALSE])
 # ------- SIMULATE COUNTERFACTUAL DATA ------- #
 
 # counterfactual data set with 1 million draws for the true ATE
-counter_dat <- sim(D, n = 1000000, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
+counter_dat <- sim(D, n = 1e6, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
 
 # Define parameter of interest: ATE
 # For 3 time points - A1: 1 1 1 1 1 1 vs A0: 0 0 0 0 0 0
@@ -117,13 +120,11 @@ treatment_1 <- matrix(1, nrow = 1000, ncol = 6)
 control_0 <- matrix(0, nrow = 1000, ncol = 6)
 
 load("SelectedLearners.RData") # predefined Learner Sets
-source("WeightsSummary.R") # learner summary functions
 
 clusterEvalQ(cl, library(ltmle))
 clusterExport(cl = cl, list(
-  "correct_forms", "incor_forms", "path", "treatment_1",
-  "learner_weights_summary_g",
-  "learner_weights_summary_Q", "control_0", "get_ATE"
+  "correct_forms", "incor_forms", "treatment_1",
+  "control_0", "get_ATE"
 ))
 
 # ----- Run Simulation ----- #
@@ -149,17 +150,11 @@ exe <- function(y) {
                    SL.library = L_set
   ), silent = TRUE)
   
-  # extract learner weights from estimation
-  Q_mean <- try(learner_weights_summary_Q(cor), silent = TRUE)
-  g_mean <- try(learner_weights_summary_g(cor), silent = TRUE)
-  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
-  
   # extract ATEs from estimation
-  ests <- list(
+  cor_ests <- list(
     ltmle = try(get_ATE(cor), silent = TRUE),
     iptw = try(get_ATE(cor, est = "iptw"), silent = TRUE)
   )
-  cor_res <- list(est_out = ests, weights_out = learn_weights)
   
   cat("Estimation with INCORRECT Q-formulas starts. \n")
   
@@ -174,26 +169,20 @@ exe <- function(y) {
                      SL.library = L_set
   ), silent = TRUE)
   
-  # extract learner weights from estimation
-  Q_mean <- try(learner_weights_summary_Q(incor), silent = TRUE)
-  g_mean <- try(learner_weights_summary_g(incor), silent = TRUE)
-  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
-  
   # extract ATEs from estimation
-  ests <- list(
+  incor_ests <- list(
     ltmle = try(get_ATE(incor), silent = TRUE),
     iptw = try(get_ATE(incor, est = "iptw"), silent = TRUE)
   )
-  incor_res <- list(est_out = ests, weights_out = learn_weights)
   
-  list(correct = cor_res, incorrect = incor_res)
+  list(correct = cor_ests, incorrect = incor_ests)
 }
 
 # only take 1500 instead of 3000 since we do not expect 2000 failed estimations
 # and take the first 1000 successful estimations anyways
-ObservedData_list <- ObservedData_list[1:1500] 
-l_obs <- length(ObservedData_list)
-list1 <- c(ObservedData_list, ObservedData_list, ObservedData_list)
+Obs_dat <- Obs_dat[1:1500] 
+l_obs <- length(Obs_dat)
+list1 <- c(Obs_dat, Obs_dat, Obs_dat)
 list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.Set3)[rep(1, l_obs)])
 
 # assemble in list of lists since we can only handle one alternating argument in 
@@ -202,7 +191,20 @@ list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.S
 data_n_learner <- lapply(1:length(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
+
+system.time({
 res <- parLapply(cl, data_n_learner, exe)
+})
 
 stopCluster(cl)
+
+# ------- GET RESULTS ------- #
+
+res_all <- do.call("c",res)
+res_corr <- do.call("c",unname(res_all[names(res_all)=="correct"]))
+res_incorr <- do.call("c",unname(res_all[names(res_all)=="incorrect"]))
+
+source("CalcBiasCP.R")
+(get_bias_cp(res_corr, true_ATE))
+(get_bias_cp(res_incorr, true_ATE))
 
