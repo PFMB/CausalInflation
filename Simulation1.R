@@ -3,6 +3,9 @@ library(simcausal)
 library(parallel)
 set.seed(123)
 
+# insert path
+setwd("/cluster/home/phibauma/CausalInflation/")
+
 # ------- DEFINE DGP ------- #
 
 ## Simulation 1
