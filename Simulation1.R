@@ -147,11 +147,10 @@ end_time <- Sys.time()
 
 stopCluster(cl)
 
-attributes(Sim1_mis)$sessInfo <- sessionInfo()
-attributes(Sim1_mis)$time <- end_time - start_time
-attributes(Sim1_mis)$seed <- .Random.seed
+sessionInfo()
+.Random.seed
 
-cat("Elapsed time:", attributes(Sim1_mis)$time, "\n")
+cat("Elapsed time:", end_time - start_time, "\n")
 
 # ------- GET RESULTS ------- #
 

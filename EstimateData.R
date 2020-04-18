@@ -159,11 +159,10 @@ res <- parLapply(cl, infl, estimation_ltmle)
 end_time <- Sys.time()
 stopCluster(cl)
 
-attributes(res)$sessInfo <- sessionInfo()
-attributes(res)$time <- end_time - start_time
-attributes(res)$seed <- .Random.seed
+sessionInfo()
+.Random.seed
 
-cat("Elapsed time:", attributes(res)$time, "\n")
+cat("Elapsed time:", end_time - start_time, "\n")
 
 prep_res <- function(res) {
 
