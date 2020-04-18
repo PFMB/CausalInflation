@@ -66,7 +66,7 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 ## Q- and g- Model are correctly specified
 
 # Initiate cluster
-cl <- makeCluster(5, outfile = "")
+cl <- makeCluster(48, outfile = "")
 clusterSetRNGStream(cl = cl, 123)
 clusterEvalQ(cl, library(ltmle))
 
@@ -96,9 +96,15 @@ exe_Sim1 <- function(x) {
   return(est_output_temp)
 }
 
-system.time({
-  Sim1 <- try(parLapply(cl, Obs_dat, exe_Sim1), silent = FALSE)
-})
+start_time <- Sys.time()
+Sim1 <- parLapply(cl, Obs_dat, exe_Sim1)
+end_time <- Sys.time()
+
+attributes(Sim1)$sessInfo <- sessionInfo()
+attributes(Sim1)$time <- end_time - start_time
+attributes(Sim1)$seed <- .Random.seed
+
+cat("Elapsed time:", attributes(Sim1)$time, "\n")
 
 ## Q-Model is correctly and g-Model is misspecified
 
@@ -135,14 +141,20 @@ exe_Sim1_mis <- function(x) {
   list(ltmle = ltmle_ATE, iptw = iptw_ATE)
 }
 
-system.time({
-  Sim1_mis <- parLapply(cl, Obs_dat, exe_Sim1_mis)
-})
+start_time <- Sys.time()
+Sim1_mis <- parLapply(cl, Obs_dat, exe_Sim1_mis)
+end_time <- Sys.time()
 
 stopCluster(cl)
+
+attributes(Sim1_mis)$sessInfo <- sessionInfo()
+attributes(Sim1_mis)$time <- end_time - start_time
+attributes(Sim1_mis)$seed <- .Random.seed
+
+cat("Elapsed time:", attributes(Sim1_mis)$time, "\n")
 
 # ------- GET RESULTS ------- #
 
 source("CalcBiasCP.R")
-(get_bias_cp(do.call("c",Sim1), true_ATE))
-(get_bias_cp(do.call("c",Sim1_mis), true_ATE))
+(get_bias_cp(do.call("c", Sim1), true_ATE))
+(get_bias_cp(do.call("c", Sim1_mis), true_ATE))

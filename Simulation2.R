@@ -36,15 +36,15 @@ D <- set.DAG(Sim2_DAG)
 
 # Add A1 to DAG: A1=(1 1 1 1 1 1)
 action_A1 <- c(node("A",
-                    t = t.start:t.end, distr = "rbern",
-                    prob = 1
+  t = t.start:t.end, distr = "rbern",
+  prob = 1
 ))
 D <- D + action("A1", nodes = action_A1)
 
 # Add A0 to DAG: A0=(0 0 0 0 0 0)
 action_A0 <- c(node("A",
-                    t = t.start:t.end, distr = "rbern",
-                    prob = 0
+  t = t.start:t.end, distr = "rbern",
+  prob = 0
 ))
 D <- D + action("A0", nodes = action_A0)
 
@@ -130,81 +130,85 @@ clusterExport(cl = cl, list(
 # ----- Run Simulation ----- #
 
 exe <- function(y) {
-  
   cat("Estimation with correct Q-formulas starts. \n")
-  
+
   source("LearnerLibrary.R") # individual learner
-  
+
   L_set <- try(y$learner, silent = TRUE)
   x <- try(y$data, silent = TRUE)
-  
+
   cor <- try(ltmle(x,
-                   Anodes = grep("A", names(x)),
-                   Ynodes = grep("Y", names(x)),
-                   Lnodes = grep("L", names(x)),
-                   Qform = correct_forms$Qforms,
-                   gform = correct_forms$gforms,
-                   Yrange = c(-102, 148),
-                   gbounds = c(0.01, 1),
-                   abar = list(treament = treatment_1, control = control_0),
-                   SL.library = L_set
+    Anodes = grep("A", names(x)),
+    Ynodes = grep("Y", names(x)),
+    Lnodes = grep("L", names(x)),
+    Qform = correct_forms$Qforms,
+    gform = correct_forms$gforms,
+    Yrange = c(-102, 148),
+    gbounds = c(0.01, 1),
+    abar = list(treament = treatment_1, control = control_0),
+    SL.library = L_set
   ), silent = TRUE)
-  
+
   # extract ATEs from estimation
   cor_ests <- list(
     ltmle = try(get_ATE(cor), silent = TRUE),
     iptw = try(get_ATE(cor, est = "iptw"), silent = TRUE)
   )
-  
+
   cat("Estimation with INCORRECT Q-formulas starts. \n")
-  
+
   incor <- try(ltmle(x,
-                     Anodes = grep("A", names(x)),
-                     Ynodes = grep("Y", names(x)),
-                     Lnodes = grep("L", names(x)),
-                     Qform = incor_forms$Qforms,
-                     gform = incor_forms$gforms,
-                     Yrange = c(-102, 148),
-                     abar = list(treament = treatment_1, control = control_0),
-                     SL.library = L_set
+    Anodes = grep("A", names(x)),
+    Ynodes = grep("Y", names(x)),
+    Lnodes = grep("L", names(x)),
+    Qform = incor_forms$Qforms,
+    gform = incor_forms$gforms,
+    Yrange = c(-102, 148),
+    abar = list(treament = treatment_1, control = control_0),
+    SL.library = L_set
   ), silent = TRUE)
-  
+
   # extract ATEs from estimation
   incor_ests <- list(
     ltmle = try(get_ATE(incor), silent = TRUE),
     iptw = try(get_ATE(incor, est = "iptw"), silent = TRUE)
   )
-  
+
   list(correct = cor_ests, incorrect = incor_ests)
 }
 
 # only take 1500 instead of 3000 since we do not expect 2000 failed estimations
 # and take the first 1000 successful estimations anyways
-Obs_dat <- Obs_dat[1:1500] 
+Obs_dat <- Obs_dat[1:1500]
 l_obs <- length(Obs_dat)
 list1 <- c(Obs_dat, Obs_dat, Obs_dat)
 list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.Set3)[rep(1, l_obs)])
 
-# assemble in list of lists since we can only handle one alternating argument in 
+# assemble in list of lists since we can only handle one alternating argument in
 # parlapply() and need to use the parallel version of mapply() if we want to handle
 # more alternating arguments in parallel
 data_n_learner <- lapply(1:length(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
 
-system.time({
+start_time <- Sys.time()
 res <- parLapply(cl, data_n_learner, exe)
-})
+end_time <- Sys.time()
 
 stopCluster(cl)
 
+attributes(res)$sessInfo <- sessionInfo()
+attributes(res)$time <- end_time - start_time
+attributes(res)$seed <- .Random.seed
+
+cat("Elapsed time:", attributes(res)$time, "\n")
+
 # ------- GET RESULTS ------- #
 
-res_all <- do.call("c",res)
-res_corr <- do.call("c",unname(res_all[names(res_all)=="correct"]))
-res_incorr <- do.call("c",unname(res_all[names(res_all)=="incorrect"]))
+res_all <- do.call("c", res)
+res_corr <- do.call("c", unname(res_all[names(res_all) == "correct"]))
+res_incorr <- do.call("c", unname(res_all[names(res_all) == "incorrect"]))
 
 source("CalcBiasCP.R")
 (get_bias_cp(res_corr, true_ATE))
 (get_bias_cp(res_incorr, true_ATE))
-
