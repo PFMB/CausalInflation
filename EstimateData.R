@@ -116,8 +116,9 @@ end_time <- Sys.time()
 stopCluster(cl)
 
 attributes(res)$sessInfo <- sessionInfo()
-attributes(res)$seed <- .Random.seed
 attributes(res)$time <- end_time - start_time
+
+cat("Elapsed time:", attributes(res)$time, "\n")
 
 prep_res <- function(res){
   
