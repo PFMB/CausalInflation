@@ -4,7 +4,7 @@ library(parallel)
 set.seed(123)
 
 # insert path
-setwd("/cluster/home/phibauma/CausalInflation/")
+setwd("/cluster/home/scstepha/CausalInflation/")
 
 # ------- DEFINE DGP ------- #
 
