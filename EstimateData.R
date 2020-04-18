@@ -162,7 +162,7 @@ stopCluster(cl)
 sessionInfo()
 .Random.seed
 
-cat("Elapsed time:", end_time - start_time, "\n")
+cat("Elapsed time:", end_time - start_time, "sec. \n")
 
 prep_res <- function(res) {
 

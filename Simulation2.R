@@ -1,6 +1,6 @@
 rm(list = ls())
 library(simcausal)
-library(ltmle)
+library(parallel)
 set.seed(123)
 
 # insert path
@@ -200,7 +200,7 @@ stopCluster(cl)
 sessionInfo()
 .Random.seed
 
-cat("Elapsed time:", end_time - start_time, "\n")
+cat("Elapsed time:", end_time - start_time, "sec. \n")
 
 # ------- GET RESULTS ------- #
 

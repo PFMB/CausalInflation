@@ -100,11 +100,7 @@ start_time <- Sys.time()
 Sim1 <- parLapply(cl, Obs_dat, exe_Sim1)
 end_time <- Sys.time()
 
-attributes(Sim1)$sessInfo <- sessionInfo()
-attributes(Sim1)$time <- end_time - start_time
-attributes(Sim1)$seed <- .Random.seed
-
-cat("Elapsed time:", attributes(Sim1)$time, "\n")
+cat("Elapsed time:", end_time - start_time,"sec. \n")
 
 ## Q-Model is correctly and g-Model is misspecified
 
@@ -150,7 +146,7 @@ stopCluster(cl)
 sessionInfo()
 .Random.seed
 
-cat("Elapsed time:", end_time - start_time, "\n")
+cat("Elapsed time:", end_time - start_time,"sec. \n")
 
 # ------- GET RESULTS ------- #
 
