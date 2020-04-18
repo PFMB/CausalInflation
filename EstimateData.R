@@ -1,6 +1,7 @@
 rm(list = ls())
 library(parallel)
 library(BaBooN) # Rubin's Rule
+set.seed(1)
 
 # insert path
 setwd("/cluster/home/phibauma/CausalInflation/")
@@ -117,6 +118,7 @@ stopCluster(cl)
 
 attributes(res)$sessInfo <- sessionInfo()
 attributes(res)$time <- end_time - start_time
+attributes(res)$seed <- .Random.seed
 
 cat("Elapsed time:", attributes(res)$time, "\n")
 
