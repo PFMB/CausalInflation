@@ -102,7 +102,7 @@ end_time <- Sys.time()
 
 cat("Elapsed time:", end_time - start_time,"sec. \n")
 
-## Q-Model is correctly and g-Model is misspecified
+## g-Model is correctly and Q-Model is misspecified
 
 mis_Q_form <- vector(length = 3)
 names(mis_Q_form) <- c("Y_2000", "Y_2001", "Y_2002")
