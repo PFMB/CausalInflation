@@ -6,3 +6,5 @@ Simulation1.r and Simulation2.r reproduce the simulation studies in the paper
 EstimateData.r reproduces the data analysis
 
 All other files are helper files
+
+Note that each .r-file requires that certain packages are installed. Please read the header of the respective .r-files carefully and contact us for questions.
