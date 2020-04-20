@@ -187,9 +187,6 @@ saveRDS(Sim1_mis, file = "Sim1MisResults.RDS")
 
 stopCluster(cl)
 
-sessionInfo()
-.Random.seed
-
 # ------- GET RESULTS ------- #
 
 source("CalcBiasCP.R")
