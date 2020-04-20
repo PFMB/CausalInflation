@@ -14,8 +14,9 @@ set.seed(1)
 #  earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
 # plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
 
-# insert your working directory here
-setwd("/cluster/home/phibauma/CausalInflation")
+# insert path
+
+setwd("C:/temp")
 
 # specify here how many cores are available for parallel computation (should be 5 here)
 n.cluster <- 5
@@ -28,11 +29,22 @@ cl <- makeCluster(n.cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
-estimation_ltmle <- function(dat, path = path) {
+# helper functions
+source("WeightsSummary.R")
 
-  # load all customized (besides defaults) learner/screeners
+# formula to extract ATE
+get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
+
+clusterExport(cl = cl, list(
+  "learner_weights_summary_g",
+  "learner_weights_summary_Q", "get_ATE"
+))
+
+estimation_ltmle <- function(dat, path = path) {
+  
   source("LearnerLibrary.R")
   load("SelectedLearners.RData")
+
   # gbm failes frequently, takes a lot of time and was not selected often during previous analyses
   SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
   attr(SL.Est_Data,"return.fit") <- TRUE # to access learner weights
@@ -59,6 +71,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(ScreenLearnSta), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(ScreenLearnSta), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(ScreenLearnSta), silent = TRUE),
+    iptw = try(get_ATE(ScreenLearnSta, est = "iptw"), silent = TRUE)
+  )
+  ScreenLearnSta <- list(est_out = ests, weights_out = learn_weights)
 
   # -------- ScreenLearn ----- Dynamic -------- #
 
@@ -77,6 +101,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(ScreenLearnDyn), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(ScreenLearnDyn), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(ScreenLearnDyn), silent = TRUE),
+    iptw = try(get_ATE(ScreenLearnDyn, est = "iptw"), silent = TRUE)
+  )
+  ScreenLearnDyn <- list(est_out = ests, weights_out = learn_weights)
 
   # -------- EconDAG ----- Static -------- #
 
@@ -97,6 +133,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(EconDAGSta), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(EconDAGSta), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(EconDAGSta), silent = TRUE),
+    iptw = try(get_ATE(EconDAGSta, est = "iptw"), silent = TRUE)
+  )
+  EconDAGSta <- list(est_out = ests, weights_out = learn_weights)
 
   # -------- EconDAG ----- Dynamic -------- #
 
@@ -118,6 +166,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(EconDAGDyn), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(EconDAGDyn), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(EconDAGDyn), silent = TRUE),
+    iptw = try(get_ATE(EconDAGDyn, est = "iptw"), silent = TRUE)
+  )
+  EconDAGDyn <- list(est_out = ests, weights_out = learn_weights)
 
   # -------- PlainDAG ----- Static -------- #
 
@@ -139,6 +199,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(PlainDAGSta), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(PlainDAGSta), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(PlainDAGSta), silent = TRUE),
+    iptw = try(get_ATE(PlainDAGSta, est = "iptw"), silent = TRUE)
+  )
+  PlainDAGSta <- list(est_out = ests, weights_out = learn_weights)
 
   # -------- PlainDAG ----- Dynamic -------- #
 
@@ -160,6 +232,18 @@ estimation_ltmle <- function(dat, path = path) {
       return(NA)
     }
   )
+  
+  # extract learner weights from estimation
+  Q_mean <- try(learner_weights_summary_Q(PlainDAGDyn), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(PlainDAGDyn), silent = TRUE)
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
+  
+  # extract ATEs from estimation
+  ests <- list(
+    ltmle = try(get_ATE(PlainDAGDyn), silent = TRUE),
+    iptw = try(get_ATE(PlainDAGDyn, est = "iptw"), silent = TRUE)
+  )
+  PlainDAGDyn <- list(est_out = ests, weights_out = learn_weights)
 
   list(
     ScreenLearnSta = ScreenLearnSta, ScreenLearnDyn = ScreenLearnDyn,
@@ -192,27 +276,14 @@ prep_res <- function(res) {
 }
 
 # LTMLE: combine/average the results from above with Rubins Rule and p2s
-ltmle_res <- lapply(res, function(res_s, est_meth = "tmle") {
-  sapply(res_s, function(res_x) unclass(summary(res_x, estimator = est_meth)$effect.measures$ATE))
+ltmle_res <- lapply(res, function(analyzed_set) {
+  sapply(analyzed_set, function(est_strategy) est_strategy$est_out$ltmle)
 })
 ltmle_res <- lapply(ltmle_res, prep_res)
 ltmle_res <- do.call("cbind", ltmle_res)
-(ltmle_res <- sapply(rownames(ltmle_res), function(row) {
+(ltmle_res <- sapply(rownames(ltmle_res), function(est_strategy) {
   MI.inference(
-    thetahat = ltmle_res[row, colnames(ltmle_res) == "est"],
-    varhat.thetahat = ltmle_res[row, colnames(ltmle_res) == "std"]^2
-  )
-}))
-
-# IPTW: combine/average the results from above with Rubins Rule and p2s
-iptw_res <- lapply(res, function(res_s, est_meth = "iptw") {
-  sapply(res_s, function(res_x) unclass(summary(res_x, estimator = est_meth)$effect.measures$ATE))
-})
-iptw_res <- lapply(iptw_res, prep_res)
-iptw_res <- do.call("cbind", iptw_res)
-(iptw_res <- sapply(rownames(iptw_res), function(row) {
-  MI.inference(
-    thetahat = iptw_res[row, colnames(iptw_res) == "est"],
-    varhat.thetahat = iptw_res[row, colnames(iptw_res) == "std"]^2
+    thetahat = ltmle_res[est_strategy, colnames(ltmle_res) == "est"],
+    varhat.thetahat = ltmle_res[est_strategy, colnames(ltmle_res) == "std"]^2
   )
 }))
