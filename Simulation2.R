@@ -39,8 +39,8 @@ set.seed(123)
 setwd("C:/temp/")
 
 # setup
-runs      <- 3                     # number of intended simulation runs
-subruns   <- 2                     # number of valid runs to be evaluated 
+runs      <- 3000                     # number of intended simulation runs
+subruns   <- 1500                     # number of valid runs to be evaluated 
                                    # [in case some runs were unsuccesful] 
 n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
 
