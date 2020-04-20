@@ -1,10 +1,10 @@
-########################################################################################################
+################################################################################
 # Philipp Baumann, Michael Schomaker, and Enzo Rossi
 # Working Paper (under submission)
 # Title:
 # Estimating the Effect of Central Bank Independence on Inflation Using 
 # Longitudinal Targeted Maximum Likelihood Estimation
-########################################################################################################
+################################################################################
 
 # Copyright (c) 2020  <Philipp Baumann, Michael Schomaker, and Enzo Rossi>
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -23,20 +23,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-##############################################################################################
+################################################################################
 # required packages
 rm(list = ls())
 library(simcausal)  # needs to be installed from CRAN (Archive):
                     # https://cran.r-project.org/web/packages/simcausal/index.html
 library(parallel)
-set.seed(123)
+set.seed(1)
 
-# insert your working directory here
-setwd("C:/temp/")
+# insert working directory here
+setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
 runs      <- 2000                      # number of simulation runs
-n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
+n.cluster <- 48   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
@@ -86,7 +86,7 @@ Obs_dat <- lapply(Obs_dat, function(x) x[, -1, drop = FALSE])
 # ------- SIMULATE COUNTERFACTUAL DATA ------- #
 
 # counterfactual data set with 1 million draws for the true ATE
-counter_dat <- sim(D, n = 1e6, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
+counter_dat <- sim(D, n = 1e6, actions = c("A0", "A1"), verbose = FALSE, rndseed = 1)
 
 # Define parameter of interest: ATE
 # For 3/6 time points - A1: 1 1 1 vs A0: 0 0 0
@@ -98,8 +98,8 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 ## Q- and g- Model are correctly specified
 
 # Initiate cluster
-cl <- makeCluster(n.cluster, outfile = "")
-clusterSetRNGStream(cl = cl, 123)
+cl <- makeCluster(n.cluster)
+clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
 exe_Sim1 <- function(x) {
@@ -128,11 +128,16 @@ exe_Sim1 <- function(x) {
   return(est_output_temp)
 }
 
-start_time <- Sys.time()
-Sim1 <- parLapply(cl, Obs_dat, exe_Sim1)
-end_time <- Sys.time()
+# run estimation
+t_ime <- system.time({
+  Sim1 <- parLapply(cl, Obs_dat, exe_Sim1)
+})
 
-cat("Elapsed time:", end_time - start_time,"sec. \n")
+# save results
+(attributes(Sim1)$time <- t_ime)
+(attributes(Sim1)$sessinfo <- sessionInfo())
+(attributes(Sim1)$seed <- .Random.seed)
+saveRDS(Sim1, file = "Sim1Results.RDS")
 
 ## g-Model is correctly and Q-Model is misspecified
 
@@ -169,16 +174,21 @@ exe_Sim1_mis <- function(x) {
   list(ltmle = ltmle_ATE, iptw = iptw_ATE)
 }
 
-start_time <- Sys.time()
-Sim1_mis <- parLapply(cl, Obs_dat, exe_Sim1_mis)
-end_time <- Sys.time()
+# run estimation
+t_ime <- system.time({
+  Sim1_mis <- parLapply(cl, Obs_dat, exe_Sim1_mis)
+})
+
+# save results
+(attributes(Sim1_mis)$time <- t_ime)
+(attributes(Sim1_mis)$sessinfo <- sessionInfo())
+(attributes(Sim1_mis)$seed <- .Random.seed)
+saveRDS(Sim1_mis, file = "Sim1MisResults.RDS")
 
 stopCluster(cl)
 
 sessionInfo()
 .Random.seed
-
-cat("Elapsed time:", end_time - start_time,"sec. \n")
 
 # ------- GET RESULTS ------- #
 
