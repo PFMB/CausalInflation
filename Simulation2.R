@@ -1,10 +1,48 @@
+########################################################################################################
+# Philipp Baumann, Michael Schomaker, and Enzo Rossi
+# Working Paper (under submission)
+# Title:
+# Estimating the Effect of Central Bank Independence on Inflation Using 
+# Longitudinal Targeted Maximum Likelihood Estimation
+########################################################################################################
+
+# Copyright (c) 2020  <Philipp Baumann, Michael Schomaker, and Enzo Rossi>
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+##############################################################################################
+# required packages
 rm(list = ls())
-library(simcausal)
+library(simcausal)  # needs to be installed from CRAN (Archive):
+                    # https://cran.r-project.org/web/packages/simcausal/index.html
 library(parallel)
 set.seed(123)
 
-# insert path
-setwd("/cluster/home/scstepha/CausalInflation/")
+# CAUTION: for estimation with the below learning algorithms, installation of the following
+#          libraries are also needed: library(stringr), library(vcd), library(magrittr)
+#          PLEASE ADD FULL LIST
+
+# insert your working directory here
+setwd("C:/temp/")
+
+# setup
+runs      <- 3                     # number of intended simulation runs
+subruns   <- 2                     # number of valid runs to be evaluated 
+                                   # [in case some runs were unsuccesful] 
+n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
@@ -51,10 +89,10 @@ D <- D + action("A0", nodes = action_A0)
 # ------- SIMULATE OBSERVED DATA ------- #
 
 # preallocate
-# Simulation 2: 3000 df with n = 1000
-Obs_dat <- vector("list", 1500)
+# Simulation 2: vector with number of intended runs
+Obs_dat <- vector("list", runs)
 
-# simulate observed data
+# simulate observed data, with n = 1000
 for (ind in seq(Obs_dat)) {
   Obs_dat[[ind]] <- sim(D, n = 1000, verbose = FALSE) # observed data
 }
@@ -112,7 +150,7 @@ incor_forms <- list(gforms = new_g_form, Qforms = incor_Q_form)
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
 # Initiate cluster
-cl <- makeCluster(24, outfile = "")
+cl <- makeCluster(n.cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 
 # define static interventions
@@ -177,9 +215,8 @@ exe <- function(y) {
   list(correct = cor_ests, incorrect = incor_ests)
 }
 
-# only take 1500 instead of 3000 since we do not expect 2000 failed estimations
-# and take the first 1000 successful estimations anyways
-Obs_dat <- Obs_dat[1:1500]
+# only take #subrund instead of #runs 
+Obs_dat <- Obs_dat[1:subruns]
 l_obs <- length(Obs_dat)
 list1 <- c(Obs_dat, Obs_dat, Obs_dat)
 list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.Set3)[rep(1, l_obs)])

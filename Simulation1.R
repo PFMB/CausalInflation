@@ -72,10 +72,10 @@ D <- D + action("A0", nodes = action_A0)
 # ------- SIMULATE OBSERVED DATA ------- #
 
 # preallocate
-# Simulation 1: 2000 df with n = 1000
+# Simulation 1: vector with number of intended runs
 Obs_dat <- vector("list", runs)
 
-# simulate observed data
+# simulate observed data, with n = 1000
 for (ind in seq(Obs_dat)) {
   Obs_dat[[ind]] <- sim(D, n = 1000, verbose = FALSE) # observed data
 }
