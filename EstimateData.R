@@ -1,12 +1,4 @@
 ################################################################################
-# Philipp Baumann, Michael Schomaker, and Enzo Rossi
-# Working Paper (under submission)
-# Title:
-# Estimating the Effect of Central Bank Independence on Inflation Using 
-# Longitudinal Targeted Maximum Likelihood Estimation
-################################################################################
-
-################################################################################
 # required packages
 rm(list = ls())
 library(parallel)
@@ -17,6 +9,10 @@ library(vcd)
 library(magrittr)
 set.seed(1)
 
+# CAUTION: for estimation with the below learning algorithms, installation of the following
+#          libraries are also needed: 
+#          ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr,
+#          randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
 # insert path
 setwd("/cluster/home/phibauma/CausalInflation")
 

@@ -36,7 +36,7 @@ setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
 runs      <- 2000                      # number of simulation runs
-n.cluster <- 48   # specify here how many cores are available for parallel computation
+n.cluster <- parallel:detectCores()   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 

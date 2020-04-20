@@ -6,3 +6,5 @@ Simulation1.r and Simulation2.r reproduce the simulation studies in the paper
 EstimateData.r reproduces the data analysis
 
 All other files are helper files
+
+Please install the following packages prior to running the above files: ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
