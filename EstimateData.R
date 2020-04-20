@@ -11,7 +11,7 @@ set.seed(1)
 
 # CAUTION: for estimation with the below learning algorithms, installation of the following
 #          libraries are also needed: 
-#          ltmle, vcd, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, simcausal, BaBooN
+#          ltmle, vcd, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, simcausal, BaBooN, SuperLearner
 
 # insert path
 setwd("/cluster/home/phibauma/CausalInflation")
