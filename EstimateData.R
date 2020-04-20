@@ -11,8 +11,8 @@ set.seed(1)
 
 # CAUTION: Please install the following packages prior to running the file: 
 # ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-# earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
-# plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
+# earth, gbm, gam , mgcv, reshape2, dplyr, data.table, 
+# plyr, tibble, scales, simcausal (currently only on CRAN archive)
 
 # insert path
 setwd("/cluster/home/phibauma/CausalInflation")
