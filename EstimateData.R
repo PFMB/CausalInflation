@@ -11,12 +11,11 @@ set.seed(1)
 
 # CAUTION: Please install the following packages prior to running the file: 
 # ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-#  earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
+# earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
 # plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
 
 # insert path
-
-setwd("C:/temp")
+setwd("/cluster/home/phibauma/CausalInflation")
 
 # specify here how many cores are available for parallel computation (should be 5 here)
 n.cluster <- 5
