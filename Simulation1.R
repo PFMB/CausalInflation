@@ -1,10 +1,43 @@
+########################################################################################################
+# Philipp Baumann, Michael Schomaker, and Enzo Rossi
+# Working Paper (under submission)
+# Title:
+# Estimating the Effect of Central Bank Independence on Inflation Using 
+# Longitudinal Targeted Maximum Likelihood Estimation
+########################################################################################################
+
+# Copyright (c) 2020  <Philipp Baumann, Michael Schomaker, and Enzo Rossi>
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+##############################################################################################
+# required packages
 rm(list = ls())
-library(simcausal)
+library(simcausal)  # needs to be installed from CRAN (Archive):
+                    # https://cran.r-project.org/web/packages/simcausal/index.html
 library(parallel)
 set.seed(123)
 
-# insert path
-setwd("/cluster/home/scstepha/CausalInflation/")
+# insert your working directory here
+setwd("C:/temp/")
+setwd("C:/Users/schomakm/Documents/GitHub/CausalInflation")
+
+# setup
+runs      <- 5                         # number of simulation runs
+n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
@@ -41,7 +74,7 @@ D <- D + action("A0", nodes = action_A0)
 
 # preallocate
 # Simulation 1: 2000 df with n = 1000
-Obs_dat <- vector("list", 2000)
+Obs_dat <- vector("list", runs)
 
 # simulate observed data
 for (ind in seq(Obs_dat)) {
@@ -66,7 +99,7 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 ## Q- and g- Model are correctly specified
 
 # Initiate cluster
-cl <- makeCluster(48, outfile = "")
+cl <- makeCluster(n.cluster, outfile = "")
 clusterSetRNGStream(cl = cl, 123)
 clusterEvalQ(cl, library(ltmle))
 
