@@ -3,21 +3,21 @@ rm(list = ls())
 library(simcausal)  # needs to be installed from CRAN (Archive):
                     # https://cran.r-project.org/web/packages/simcausal/index.html
 library(parallel)
-set.seed(123)
+set.seed(1)
 
 # CAUTION: Please install the following packages prior to running the file: 
 # ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-#  earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
-# plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
+# earth, gbm, gam, mgcv, reshape2, xtable, dplyr, data.table, 
+# plyr, tibble, scales, simcausal (currently only on CRAN archive)
 
-# insert your working directory here
-setwd("C:/temp/")
+# insert working directory here
+setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
 runs      <- 3000                     # number of intended simulation runs
 subruns   <- 1500                     # number of valid runs to be evaluated 
                                       # [in case some runs were unsuccesful] 
-n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
+n.cluster <- 24   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
@@ -125,7 +125,7 @@ incor_forms <- list(gforms = new_g_form, Qforms = incor_Q_form)
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
 # Initiate cluster
-cl <- makeCluster(n.cluster, outfile = "")
+cl <- makeCluster(n.cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 
 # define static interventions
@@ -203,16 +203,17 @@ data_n_learner <- lapply(1:length(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
 
-start_time <- Sys.time()
-res <- parLapply(cl, data_n_learner, exe)
-end_time <- Sys.time()
-
+# run estimation
+t_ime <- system.time({
+  Sim2 <- parLapply(cl, Obs_dat, exe)
+})
 stopCluster(cl)
 
-sessionInfo()
-.Random.seed
-
-cat("Elapsed time:", end_time - start_time, "sec. \n")
+# save results
+(attributes(Sim2)$time <- t_ime)
+(attributes(Sim2)$sessinfo <- sessionInfo())
+(attributes(Sim2)$seed <- .Random.seed)
+saveRDS(Sim2, file = "Sim2Results.RDS")
 
 # ------- GET RESULTS ------- #
 
