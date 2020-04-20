@@ -33,7 +33,6 @@ set.seed(123)
 
 # insert your working directory here
 setwd("C:/temp/")
-setwd("C:/Users/schomakm/Documents/GitHub/CausalInflation")
 
 # setup
 runs      <- 5                         # number of simulation runs
