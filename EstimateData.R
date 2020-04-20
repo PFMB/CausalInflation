@@ -38,7 +38,7 @@ estimation_ltmle <- function(dat, path = path) {
   load("SelectedLearners.RData")
   # gbm failes frequently, takes a lot of time and was not selected often during previous analyses
   SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
-  attr(SL.Est_Data,"return") <- TRUE # to access learner weights
+  attr(SL.Est_Data,"return.fit") <- TRUE # to access learner weights
 
   # load nodes, g-/Q-formulas and interventions
   load("NodesFormInterv.RData")
