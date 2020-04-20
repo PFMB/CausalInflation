@@ -9,11 +9,12 @@ library(vcd)
 library(magrittr)
 set.seed(1)
 
-# CAUTION: for estimation with the below learning algorithms, installation of the following
-#          libraries are also needed: 
-#          ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr,
-#          randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
-# insert path
+# CAUTION: Please install the following packages prior to running the file: 
+# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
+#  earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
+# plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
+
+# insert your working directory here
 setwd("/cluster/home/phibauma/CausalInflation")
 
 # specify here how many cores are available for parallel computation (should be 5 here)

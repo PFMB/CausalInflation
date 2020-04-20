@@ -7,4 +7,4 @@ EstimateData.r reproduces the data analysis
 
 All other files are helper files
 
-Please install the following packages prior to running the above files: ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
+Please install the following packages prior to running the above files: ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)

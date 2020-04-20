@@ -5,10 +5,11 @@ library(simcausal)  # needs to be installed from CRAN (Archive):
 library(parallel)
 set.seed(123)
 
-# CAUTION: for estimation with the below learning algorithms, installation of the following
-#          libraries are also needed: 
-#          ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr,
-#          randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
+# CAUTION: Please install the following packages prior to running the file: 
+# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
+#  earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, 
+# plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
+
 # insert your working directory here
 setwd("C:/temp/")
 
