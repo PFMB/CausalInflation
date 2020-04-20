@@ -1,16 +1,20 @@
-########################################################################################################
+################################################################################
 # Philipp Baumann, Michael Schomaker, and Enzo Rossi
 # Working Paper (under submission)
 # Title:
 # Estimating the Effect of Central Bank Independence on Inflation Using 
 # Longitudinal Targeted Maximum Likelihood Estimation
-########################################################################################################
+################################################################################
 
-##############################################################################################
+################################################################################
 # required packages
 rm(list = ls())
 library(parallel)
 library(BaBooN) # for Rubin's Rules after Imputation
+library(ltmle)
+library(stringr)
+library(vcd)
+library(magrittr)
 set.seed(1)
 
 # CAUTION: for estimation with the below learning algorithms, installation of the following
@@ -18,17 +22,16 @@ set.seed(1)
 #          ltmle, vcd, glmnet, stringr, magrittr, randomForest, earth, gbm, gam
 
 # insert path
-setwd("C:/temp")
+setwd("/cluster/home/phibauma/CausalInflation")
 
-# setup
-n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
-
+# specify here how many cores are available for parallel computation (should be 5 here)
+n.cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
 load("causalinfl.RData")
 
 # initiate cluster
-cl <- makeCluster(n.cluster, outfile = "")
+cl <- makeCluster(n.cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
@@ -37,8 +40,9 @@ estimation_ltmle <- function(dat, path = path) {
   # load all customized (besides defaults) learner/screeners
   source("LearnerLibrary.R")
   load("SelectedLearners.RData")
-  # gbm failes frequently and was not selected often during previous analyses
-  SL.Est_Data <- SL.Est_Data[-c(10, 21, 32, 43, 54)] # exclude GBM
+  # gbm failes frequently, takes a lot of time and was not selected often during previous analyses
+  SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
+  attr(SL.Est_Data,"return.fit") <- TRUE # to access learner weights
 
   # load nodes, g-/Q-formulas and interventions
   load("NodesFormInterv.RData")
@@ -172,16 +176,18 @@ estimation_ltmle <- function(dat, path = path) {
 }
 
 # run estimation
-start_time <- Sys.time()
+t_ime <- system.time({
 res <- parLapply(cl, infl, estimation_ltmle)
-end_time <- Sys.time()
+})
 stopCluster(cl)
 
-sessionInfo()
-.Random.seed
+# save results
+(attributes(res)$time <- t_ime)
+(attributes(res)$sessinfo <- sessionInfo())
+(attributes(res)$seed <- .Random.seed)
+saveRDS(res, file = "EstResults.RDS")
 
-cat("Elapsed time:", end_time - start_time, "sec. \n")
-
+# retrieve results
 prep_res <- function(res) {
 
   # extract results from all ltmle outputs and put in result matrix
