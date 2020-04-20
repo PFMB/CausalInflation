@@ -10,7 +10,7 @@ library(magrittr)
 set.seed(1)
 
 # CAUTION: for estimation with the below learning algorithms, installation of the following
-#          libraries are also needed: 
+#          libraries are also needed (especially on the cluster if run in parallel): 
 #          ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr,
 #          randomForest, earth, gbm, gam , mgcv, simcausal (currently only on CRAN archive)
 # insert path
