@@ -13,6 +13,10 @@ library(parallel)
 library(BaBooN) # for Rubin's Rules after Imputation
 set.seed(1)
 
+# CAUTION: for estimation with the below learning algorithms, installation of the following
+#          libraries are also needed: 
+#          ltmle, vcd, glmnet, stringr, magrittr, randomForest, earth, gbm, gam
+
 # insert path
 setwd("C:/temp")
 

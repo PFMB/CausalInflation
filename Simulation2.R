@@ -32,8 +32,8 @@ library(parallel)
 set.seed(123)
 
 # CAUTION: for estimation with the below learning algorithms, installation of the following
-#          libraries are also needed: library(stringr), library(vcd), library(magrittr)
-#          PLEASE ADD FULL LIST
+#          libraries are also needed: 
+#          ltmle, vcd, glmnet, stringr, magrittr, randomForest, earth, gbm, gam
 
 # insert your working directory here
 setwd("C:/temp/")
