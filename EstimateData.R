@@ -23,7 +23,7 @@ n.cluster <- 5
 load("causalinfl.RData")
 
 # initiate cluster
-cl <- makeCluster(n.cluster, outfile = "")
+cl <- makeCluster(n.cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
