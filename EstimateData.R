@@ -1,16 +1,30 @@
+########################################################################################################
+# Philipp Baumann, Michael Schomaker, and Enzo Rossi
+# Working Paper (under submission)
+# Title:
+# Estimating the Effect of Central Bank Independence on Inflation Using 
+# Longitudinal Targeted Maximum Likelihood Estimation
+########################################################################################################
+
+##############################################################################################
+# required packages
 rm(list = ls())
 library(parallel)
-library(BaBooN) # Rubin's Rule
+library(BaBooN) # for Rubin's Rules after Imputation
 set.seed(1)
 
 # insert path
-setwd("/cluster/home/phibauma/CausalInflation/")
+setwd("C:/temp")
+
+# setup
+n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
+
 
 # load 5 imputed data.frames that are analyzed
 load("causalinfl.RData")
 
 # initiate cluster
-cl <- makeCluster(5, outfile = "")
+cl <- makeCluster(n.cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
