@@ -35,7 +35,7 @@ set.seed(123)
 setwd("C:/temp/")
 
 # setup
-runs      <- 5                         # number of simulation runs
+runs      <- 2000                      # number of simulation runs
 n.cluster <- parallel::detectCores()   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
