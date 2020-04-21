@@ -205,7 +205,7 @@ data_n_learner <- lapply(1:length(list1), function(idx) {
 
  # run estimation
 t_ime <- system.time({
-  Sim2 <- parLapply(cl, Obs_dat, exe)
+  Sim2 <- parLapply(cl, data_n_learner, exe)
 })
 stopCluster(cl)
 
