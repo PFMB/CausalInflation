@@ -7,7 +7,7 @@ set.seed(1)
 
 # CAUTION: Please install the following packages prior to running the file: 
 # ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-# earth, gbm, gam, mgcv, reshape2, xtable, dplyr, data.table, 
+# earth, gbm, gam, mgcv, reshape2, dplyr, data.table, polspline
 # plyr, tibble, scales, simcausal (currently only on CRAN archive)
 
 # insert working directory here

@@ -1,10 +1,20 @@
-# CausalInflation
-Data and Code of "Estimating the Effect of Central Bank Independence on Inflation Using Longitudinal Targeted Maximum Likelihood Estimation" by Baumann, Schomaker and Rossi 
+### Repository for the Reproduction of *Estimating the Effect of Central Bank Independence on Inflation Using Longitudinal Targeted Maximum Likelihood Estimation*
 
-Simulation1.r and Simulation2.r reproduce the simulation studies in the paper
+This repository is provided for the reproduction of the results of the research paper "Estimating the Effect of Central Bank Independence on Inflation Using Longitudinal Targeted Maximum Likelihood Estimation". It contains all relevant data and code for the main results. **Please install the following packages** prior to running the files listed below: ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, reshape2, dplyr, data.table, plyr, tibble, scales, polspline, simcausal (currently only on CRAN archive). 
 
-EstimateData.r reproduces the data analysis
+The repository cotains the following files:
 
-All other files are helper files
+* `Simulation1.R` and `Simulation2.R` reproduce the simulation studies presented in the paper
 
-Please install the following packages prior to running the above files: ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest, earth, gbm, gam , mgcv, gridExtra, ggplot2, reshape2, xtable, dplyr, data.table, plyr, tibble, stargazer, ggpubr, scales, simcausal (currently only on CRAN archive)
+* `EstimateData.R` reproduces the data analysis
+
+* `CalcBiasCP.R` takes the output from the run on the cluster and calculates the abs. bias and the coverage probabilites reported in the paper
+
+* `NodesFormInterv.RData` contains g/Q-formula and further arguments needed for the specification of `ltmle::ltmle`
+
+* `WeightsSummary.R` contains functions that extract the weights of the learners which are used during the run of the `SuperLearner`
+
+* `LearnerLibrary.R` and `SelectedLearners.RData` contain customized sets of learners that are used for the estimations made by `EstimateData.R`, `Simulation1.R` and `Simulation2.R`
+
+* `causalinfl.RData` contains the 5 imputed data sets that were used in `EstimateData.R`
+
