@@ -203,7 +203,7 @@ data_n_learner <- lapply(1:length(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
 
-# run estimation
+ # run estimation
 t_ime <- system.time({
   Sim2 <- parLapply(cl, Obs_dat, exe)
 })
@@ -217,7 +217,7 @@ saveRDS(Sim2, file = "Sim2Results.RDS")
 
 # ------- GET RESULTS ------- #
 
-res_all <- do.call("c", res)
+res_all <- do.call("c", Sim2)
 res_corr <- do.call("c", unname(res_all[names(res_all) == "correct"]))
 res_incorr <- do.call("c", unname(res_all[names(res_all) == "incorrect"]))
 
