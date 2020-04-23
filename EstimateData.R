@@ -1,5 +1,9 @@
-################################################################################
-# required packages
+# Please install the following packages prior to running the file: 
+# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
+# earth, gbm, gam, mgcv, reshape2, dplyr, data.table, polspline
+# plyr, tibble, scales, BaBooN, simcausal (currently only on CRAN archive)
+
+# load in memory and attach to serachpath
 rm(list = ls())
 library(parallel)
 library(BaBooN) # for Rubin's Rules after Imputation
@@ -9,11 +13,6 @@ library(vcd)
 library(magrittr)
 set.seed(1)
 
-# CAUTION: Please install the following packages prior to running the file: 
-# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-# earth, gbm, gam, mgcv, reshape2, dplyr, data.table, polspline
-# plyr, tibble, scales, simcausal (currently only on CRAN archive)
-
 # insert working directory
 setwd("/cluster/home/phibauma/CausalInflation")
 
@@ -21,14 +20,14 @@ setwd("/cluster/home/phibauma/CausalInflation")
 n.cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
-load("causalinfl.RData")
+load("InflData.RData")
 
 # initiate cluster
 cl <- makeCluster(n.cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
-# helper functions
+# extract learner weights
 source("WeightsSummary.R")
 
 # formula to extract ATE
@@ -42,7 +41,7 @@ clusterExport(cl = cl, list(
 estimation_ltmle <- function(dat, path = path) {
   
   source("LearnerLibrary.R")
-  load("SelectedLearners.RData")
+  load("SelectedLearner.RData")
 
   # gbm failes frequently, takes a lot of time and was not selected often during previous analyses
   SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM

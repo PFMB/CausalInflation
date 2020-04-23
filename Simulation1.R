@@ -1,4 +1,4 @@
-# required packages
+# load in memory and attach to serachpath
 rm(list = ls())
 library(simcausal)  # needs to be installed from CRAN (Archive):
                     # https://cran.r-project.org/web/packages/simcausal/index.html

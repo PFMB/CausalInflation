@@ -1,14 +1,14 @@
-# required packages
+# Please install the following packages prior to running the file: 
+# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, randomForest,
+# earth, gbm, gam, mgcv, reshape2, dplyr, data.table, polspline
+# plyr, tibble, scales, BaBooN, simcausal (currently only on CRAN archive)
+
+# load in memory and attach to serachpath
 rm(list = ls())
 library(simcausal)  # needs to be installed from CRAN (Archive):
                     # https://cran.r-project.org/web/packages/simcausal/index.html
 library(parallel)
 set.seed(1)
-
-# CAUTION: Please install the following packages prior to running the file: 
-# ltmle, SuperLearner, vcd, arm, rpart, nnet, glmnet, stringr, magrittr, randomForest,
-# earth, gbm, gam, mgcv, reshape2, dplyr, data.table, polspline
-# plyr, tibble, scales, simcausal (currently only on CRAN archive)
 
 # insert working directory here
 setwd("/cluster/home/scstepha/CausalInflation")
@@ -132,7 +132,7 @@ clusterSetRNGStream(cl = cl, iseed = 1)
 treatment_1 <- matrix(1, nrow = 1000, ncol = 6)
 control_0 <- matrix(0, nrow = 1000, ncol = 6)
 
-load("SelectedLearners.RData") # predefined Learner Sets
+load("SelectedLearner.RData") # predefined Learner Sets
 
 clusterEvalQ(cl, library(ltmle))
 clusterExport(cl = cl, list(
@@ -143,7 +143,7 @@ clusterExport(cl = cl, list(
 # ----- Run Simulation ----- #
 
 exe <- function(y) {
-  cat("Estimation with correct Q-formulas starts. \n")
+  cat("Estimation with correct Q-formulas starts.\n")
 
   source("LearnerLibrary.R") # individual learner
 
@@ -168,7 +168,7 @@ exe <- function(y) {
     iptw = try(get_ATE(cor, est = "iptw"), silent = TRUE)
   )
 
-  cat("Estimation with INCORRECT Q-formulas starts. \n")
+  cat("Estimation with INCORRECT Q-formulas starts.\n")
 
   incor <- try(ltmle(x,
     Anodes = grep("A", names(x)),
@@ -197,13 +197,12 @@ list1 <- c(Obs_dat, Obs_dat, Obs_dat)
 list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.Set3)[rep(1, l_obs)])
 
 # assemble in list of lists since we can only handle one alternating argument in
-# parlapply() and need to use the parallel version of mapply() if we want to handle
-# more alternating arguments in parallel
+# parlapply()
 data_n_learner <- lapply(1:length(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
 
- # run estimation
+# run estimation
 t_ime <- system.time({
   Sim2 <- parLapply(cl, data_n_learner, exe)
 })
