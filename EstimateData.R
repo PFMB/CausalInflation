@@ -8,9 +8,7 @@ rm(list = ls())
 library(parallel)
 library(BaBooN) # for Rubin's Rules after Imputation
 library(ltmle)
-library(stringr)
 library(vcd)
-library(magrittr)
 set.seed(1)
 
 # insert working directory

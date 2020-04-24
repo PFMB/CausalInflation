@@ -5,11 +5,10 @@
 
 #### Screening ####
 
-# 1) Random Forest with 'randomForest::randomForest'
-# -- Hyperparamter Tuning via grid search and 'caret' package
+### 1) Random Forest with 'randomForest::randomForest'
 
-screen.randomForest_base <- function(Y, X, family = list(), nVar = 5, ntree = ntree, mtry = ifelse(family$family ==
-                                                                                                     "gaussian", floor(sqrt(ncol(X))), max(floor(ncol(X) / 3), 1)),
+screen.randomForest_base <- function(Y, X, family = list(), nVar = 8, ntree = 200, mtry = ifelse(family$family ==
+                                                                                                   "gaussian", floor(sqrt(ncol(X))), max(floor(ncol(X) / 3), 1)),
                                      nodesize = ifelse(family$family == "gaussian", 5, 1), maxnodes = NULL,
                                      ...) {
   # chose family dependent upon response variable
@@ -24,8 +23,6 @@ screen.randomForest_base <- function(Y, X, family = list(), nVar = 5, ntree = nt
     t_ime <- system.time({
       SuperLearner:::.SL.require("randomForest")
       if (family$family == "gaussian") {
-        # X <- matrix(rnorm(12 * 1000), ncol = 1000)
-        # Y <- t(c(5, 6, -4, -3, 2, -0.001, 0.001, 0.002, 4, 7, -2, 5) %*% X + rnorm(1000))
         
         rank.rf.fit <- randomForest::randomForest(Y ~ .,
                                                   data = X,
@@ -38,8 +35,6 @@ screen.randomForest_base <- function(Y, X, family = list(), nVar = 5, ntree = nt
         return(rank(-imp_measure, ties.method = "random") <= nVar)
       }
       if (family$family == "binomial") {
-        # X <- matrix(rnorm(12 * 1000), ncol = 1000)
-        # Y <- rbinom(1000, 1, plogis(c(5, 6, -4, -3, 2, -0.001, 0.001, 0.002, 4, 7, -2, 5) %*% X + rnorm(1000)))
         
         rank.rf.fit <- randomForest::randomForest(as.factor(Y) ~ .,
                                                   data = X,
@@ -54,7 +49,7 @@ screen.randomForest_base <- function(Y, X, family = list(), nVar = 5, ntree = nt
     })
     cat("- screen.randomForest finished - \n")
   }
-  rep(TRUE, ncol(X)) # select all if less than 11 vars are contained in X
+  rep(TRUE, ncol(X))
 }
 
 # Try different Hyperparamters
@@ -67,8 +62,7 @@ for (i in seq(nrow(tuneGrid))) {
   )))
 }
 
-# 2) Cramers V with vcd::assocstats
-# -- Hyperparamter Tuning via grid search and 'caret' package
+### 2) Cramers V with vcd::assocstats
 
 screen.cramersv_base <- function(Y, X, nscreen = 4, num_cat = 10, ...) {
   cat("- screen.cramersv screens", nscreen, "variables -\n")
@@ -105,7 +99,7 @@ for (i in seq(nrow(tuneGrid))) {
   )))
 }
 
-# 3) Elastic Net with glmnet::cv.glmnet
+### 3) Elastic Net with glmnet::cv.glmnet
 
 screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, nlambda = 150, nVar = 8, ...) {
   SuperLearner:::.SL.require("glmnet")
@@ -180,7 +174,7 @@ screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, 
   return(whichVariable)
 }
 
-# 4) Pearson Correlation Coef. with cor.test()$p.value
+### 4) Pearson Correlation Coef. with cor.test()$p.value
 
 screen.corPearson <- function(Y, X, family, obsWeights, id, method = "pearson", minPvalue = 0.01,
                               minscreen = 2, maxscreen = 8, ...) {
