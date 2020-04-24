@@ -8,7 +8,7 @@
 ### 1) Random Forest with 'randomForest::randomForest'
 
 screen.randomForest_base <- function(Y, X, family = list(), nVar = 8, ntree = 200, mtry = ifelse(family$family ==
-                                                                                                   "gaussian", floor(sqrt(ncol(X))), max(floor(ncol(X) / 3), 1)),
+                                       "gaussian", floor(sqrt(ncol(X))), max(floor(ncol(X) / 3), 1)),
                                      nodesize = ifelse(family$family == "gaussian", 5, 1), maxnodes = NULL,
                                      ...) {
   # chose family dependent upon response variable
@@ -23,11 +23,10 @@ screen.randomForest_base <- function(Y, X, family = list(), nVar = 8, ntree = 20
     t_ime <- system.time({
       SuperLearner:::.SL.require("randomForest")
       if (family$family == "gaussian") {
-        
         rank.rf.fit <- randomForest::randomForest(Y ~ .,
-                                                  data = X,
-                                                  ntree = ntree, mtry = mtry, nodesize = nodesize,
-                                                  keep.forest = FALSE, maxnodes = maxnodes, importance = TRUE
+          data = X,
+          ntree = ntree, mtry = mtry, nodesize = nodesize,
+          keep.forest = FALSE, maxnodes = maxnodes, importance = TRUE
         )
         # variables with the largest %IncMSE are the most important ones
         # negative scores mean zero or low importance
@@ -35,11 +34,10 @@ screen.randomForest_base <- function(Y, X, family = list(), nVar = 8, ntree = 20
         return(rank(-imp_measure, ties.method = "random") <= nVar)
       }
       if (family$family == "binomial") {
-        
         rank.rf.fit <- randomForest::randomForest(as.factor(Y) ~ .,
-                                                  data = X,
-                                                  ntree = ntree, mtry = mtry, nodesize = nodesize,
-                                                  keep.forest = FALSE, maxnodes = maxnodes, importance = TRUE
+          data = X,
+          ntree = ntree, mtry = mtry, nodesize = nodesize,
+          keep.forest = FALSE, maxnodes = maxnodes, importance = TRUE
         )
         # variables with the largest mean decrease in accuracy are the most important ones
         # negative scores mean zero or low importance
@@ -103,10 +101,10 @@ for (i in seq(nrow(tuneGrid))) {
 
 screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, nlambda = 150, nVar = 8, ...) {
   SuperLearner:::.SL.require("glmnet")
-  
+
   # relevant for column names but shouldnt be a matrix anyways
   X <- as.data.frame(X)
-  
+
   # chose family dependent upon response
   Y <- as.vector(as.matrix(Y))
   if (all(Y == 0 | Y == 1)) {
@@ -114,17 +112,17 @@ screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, 
   } else {
     family$family <- "gaussian"
   }
-  
+
   # needed for var names to select from levels of factors later on
   if (ncol(X) > 26 * 27) stop("Find further column names for X!")
   let <- c(letters, sort(do.call("paste0", expand.grid(letters, letters[1:26]))))
   names(X) <- let[1:ncol(X)]
-  
+
   # factors are coded as dummies which are standardized in cv.glmnet()
   # intercept is not in model.matrix() because its already in cv.glmnet()
   is_fact_var <- sapply(X, is.factor)
   X <- try(model.matrix(~ -1 + ., data = X), silent = FALSE)
-  
+
   # cv.glmnet() calls glmnet(), thus arguments are given to glmnet()
   if (ncol(X) > 8) {
     fitCV <- try(glmnet::cv.glmnet(
@@ -148,7 +146,7 @@ screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, 
     }
     coefs <- coef(fitCV$glmnet.fit, s = fitCV$glmnet.fit$lambda[lambda_index_with_nVar])
     var_nms <- coefs@Dimnames[[1]]
-    
+
     # Instead of Group Lasso:
     # If any level of a dummy coded factor is selected, the whole factor is selected
     if (any(is_fact_var)) {
@@ -181,14 +179,22 @@ screen.corPearson <- function(Y, X, family, obsWeights, id, method = "pearson", 
   if (ncol(X) > 8) {
     p_val <- sapply(X, function(var) {
       # factors are only selected when no driving metrics seem to be there
-      if (length(unique(var)) < 5 | is.factor(var)) return(minPvalue + 1e-4)
+      if (length(unique(var)) < 5 | is.factor(var)) {
+        return(minPvalue + 1e-4)
+      }
       # predictors with zero variance are not meaningful
-      if (var(var) == 0) return(1)
+      if (var(var) == 0) {
+        return(1)
+      }
       cor.test(var, y = Y, method = "pearson")$p.value
     })
     no_sel <- sum(p_val <= minPvalue)
-    if (no_sel > maxscreen) return(rank(p_val, ties.method = "random") <= maxscreen)
-    if (no_sel < minscreen) return(rank(p_val, ties.method = "random") <= minscreen)
+    if (no_sel > maxscreen) {
+      return(rank(p_val, ties.method = "random") <= maxscreen)
+    }
+    if (no_sel < minscreen) {
+      return(rank(p_val, ties.method = "random") <= minscreen)
+    }
     return(p_val <= minPvalue)
   }
   rep(TRUE, ncol(X))
@@ -196,12 +202,21 @@ screen.corPearson <- function(Y, X, family, obsWeights, id, method = "pearson", 
 
 #### Prediction ####
 
-# 1) Multivariate Adaptive Regression Splines with 'earth'
+# 1) multivariate adaptive regression splines with 'earth'
 
-SL.earth2 <- function(Y, X, newX, family, obsWeights, id, degree = 2, penalty = 3,
+SL.earth2 <- function(Y, X, newX = NULL, family = list(), obsWeights = NULL, id = NULL, degree = 2, penalty = 3,
                       nk = max(21, 2 * ncol(X) + 1), pmethod = "backward", nfold = 0,
                       ncross = 1, minspan = 0, endspan = 0, ...) {
   cat(" - earth2 was started and is making predictions - \n")
+
+  # chose family dependent upon response
+  Y <- as.vector(as.matrix(Y))
+  if (all(Y == 0 | Y == 1)) {
+    family$family <- "binomial"
+  } else {
+    family$family <- "gaussian"
+  }
+
   earth_time <- system.time({
     SuperLearner:::.SL.require("earth")
     if (family$family == "gaussian") {
@@ -235,17 +250,24 @@ SL.earth2 <- function(Y, X, newX, family, obsWeights, id, degree = 2, penalty = 
   return(out)
 }
 
-
 # 2) Random Forest with different numbers of Trees
 
-SL.randomForest_base <- function(Y, X, newX, family, mtry = ifelse(family$family ==
+SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifelse(family$family ==
                                    "gaussian", max(floor(ncol(X) / 3), 1), floor(sqrt(ncol(X)))),
-                                 ntree = ntree, nodesize = ifelse(family$family == "gaussian",
+                                 ntree = 100, nodesize = ifelse(family$family == "gaussian",
                                    5, 1
                                  ), maxnodes = NULL, importance = FALSE, ...) {
-  cat(" - randomForest was started (ntree =", ntree, ") and is making predictions - ")
+  cat(" - randomForest was started (ntree =", ntree, ") and is making predictions - \n")
   randomForest_time <- system.time({
     SuperLearner:::.SL.require("randomForest")
+
+    # chose family dependent upon response
+    Y <- as.vector(as.matrix(Y))
+    if (all(Y == 0 | Y == 1)) {
+      family$family <- "binomial"
+    } else {
+      family$family <- "gaussian"
+    }
 
     if (family$family == "gaussian") {
       fit.rf <- randomForest::randomForest(Y ~ .,
@@ -257,7 +279,7 @@ SL.randomForest_base <- function(Y, X, newX, family, mtry = ifelse(family$family
       try(pred <- fit.rf$test$predicted, silent = TRUE)
       if (any(class(fit.rf) == "try-error")) {
         pred <- rep(mean(Y), length(Y))
-        cat(paste0("FAIL!"))
+        cat("- Failed random forest - \n")
       }
       fit <- list(object = fit.rf)
     }
@@ -271,7 +293,7 @@ SL.randomForest_base <- function(Y, X, newX, family, mtry = ifelse(family$family
       try(pred <- fit.rf$test$votes[, 2], silent = TRUE)
       if (any(class(fit.rf) == "try-error")) {
         pred <- rep(mean(Y), length(Y))
-        cat(paste0("FAIL!"))
+        cat("- Failed random forest - \n")
       }
       fit <- list(object = fit.rf)
     }
@@ -294,12 +316,21 @@ for (i in seq(nrow(tuneGrid))) {
 }
 
 # 3) Generalized Boosted Regression with tuning grid
+# failes frequently and takes a lot of time
 
-SL.gbm_base <- function(Y, X, newX, family, obsWeights, gbm.trees = gbm.trees,
-                        interaction.depth = interaction.depth, shrinkage = 0.001, ...) {
+SL.gbm_base <- function(Y, X, newX = NULL, family = list(), obsWeights = NULL, gbm.trees = 10,
+                        interaction.depth = 1, shrinkage = 0.001, ...) {
   cat(" - GBM started and is making predictions, interaction depth = ", interaction.depth, " and gbm.trees = ", gbm.trees, " - \n")
   SuperLearner:::.SL.require("gbm")
   gbm.model <- as.formula(paste("Y~", paste(colnames(X), collapse = "+")))
+
+  # chose family dependent upon response
+  Y <- as.vector(as.matrix(Y))
+  if (all(Y == 0 | Y == 1)) {
+    family$family <- "binomial"
+  } else {
+    family$family <- "gaussian"
+  }
 
   if (family$family == "gaussian") {
     fit.gbm <- gbm::gbm(
@@ -328,13 +359,13 @@ SL.gbm_base <- function(Y, X, newX, family, obsWeights, gbm.trees = gbm.trees,
   best.iter <- gbm::gbm.perf(fit.gbm, method = "cv", plot.it = FALSE)
   pred <- try(predict(fit.gbm, newdata = newX, best.iter, type = "response"), silent = TRUE)
   if (any(class(pred) == "try-error")) {
-    cat("GBM Unsuccessful!")
+    cat("- GBM Unsuccessful! - \n")
     pred <- rep(median(Y), length(Y))
   }
   fit <- list(object = fit.gbm, n.trees = best.iter)
   out <- list(pred = pred, fit = fit)
   class(out$fit) <- c("SL.gbm")
-  cat(" - GBM finished - ")
+  cat(" - GBM finished - \n")
   return(out)
 }
 
@@ -348,12 +379,13 @@ for (i in seq(nrow(tuneGrid))) {
   )))
 }
 
-# 5) GAM from 'gam' package just slighlty modified for fluent estimation procedure
+# 4) GAM from 'gam' package just slighlty modified for fluent estimation procedure
 # no substantial changes
 
-SL.gam2 <- function(Y, X, newX, family, obsWeights, deg.gam = 2, cts.num = 4,
+SL.gam2 <- function(Y, X, newX = NULL, family = list(), obsWeights = NULL, deg.gam = 2, cts.num = 5,
                     ...) {
 
+  # deg.gam == 2 is needed due to frequently occurring convergence failure
   # chose family dependent upon response variable
   Y <- as.vector(as.matrix(Y))
   if (all(Y == 0 | Y == 1)) {
@@ -362,56 +394,70 @@ SL.gam2 <- function(Y, X, newX, family, obsWeights, deg.gam = 2, cts.num = 4,
     family$family <- gaussian() # scat() also reasonable but computationally intense
   }
 
-  cat(" - GAM2 was started and is making predictions - \n")
+  cat(" - gam::gam was started and is making predictions - \n")
   gam_time <- system.time({
     SuperLearner:::.SL.require("gam")
     s <- gam:::s # s() is also used by 'mgcv' package - avoid clash
 
-    cts.x <- apply(X, 2, function(x) (length(unique(x)) > cts.num))
-    if (sum(!cts.x) > 0) {
+    # adjust model formula for metric and categorical predictors
+    metric_var <- apply(X, 2, function(x) (length(unique(x)) > cts.num))
+    if (sum(metric_var) != 0 & sum(metric_var) != length(metric_var)) {
+      # metric and categorical variables
       gam.model <- as.formula(paste("Y~", paste(paste("s(",
-        colnames(X[, cts.x, drop = FALSE]), ",", deg.gam,
+        colnames(X[, metric_var, drop = FALSE]), ",", deg.gam,
         ")",
         sep = ""
       ), collapse = "+"), "+", paste(colnames(X[,
-        !cts.x,
+        !metric_var,
         drop = FALSE
       ]), collapse = "+")))
     }
-    else {
+    if (all(metric_var)) {
+      # metric variables only
       gam.model <- as.formula(paste("Y~", paste(paste("s(",
-        colnames(X[, cts.x, drop = FALSE]), ",", deg.gam,
+        colnames(X[, metric_var, drop = FALSE]), ",", deg.gam,
         ")",
         sep = ""
       ), collapse = "+")))
-    }
-    if (sum(!cts.x) == length(cts.x)) {
+    } else {
+      # all categorical
       gam.model <- as.formula(paste("Y~", paste(colnames(X),
         collapse = "+"
       ), sep = ""))
     }
     fit.gam <- gam::gam(gam.model,
-      data = X, family = family,
+      data = X, family = family$family,
       control = gam::gam.control(maxit = 50, bf.maxit = 50),
       weights = obsWeights
     )
-    pred <- gam::predict.Gam(fit.gam, newdata = newX, type = "response") # or predict.gam depending on version
+    # or predict.gam depending on version
+    pred <- gam::predict.Gam(fit.gam, newdata = newX, type = "response")
     fit <- list(object = fit.gam)
     out <- list(pred = pred, fit = fit)
     class(out$fit) <- c("SL.gam")
   })
-  cat("- GAM2 was finished lasting: ", round(unclass(gam_time)["elapsed"], 2), " - \n")
+  cat("- gam::gam was finished lasting: ", round(unclass(gam_time)["elapsed"], 2), " - \n")
   return(out)
 }
 
-# 6) GLM.Interaction with informative output
-SL.glm.interaction_info <- function(Y, X, newX, family, obsWeights, ...) {
+# 6) glm.interaction with informative output
+
+SL.glm.interaction_info <- function(Y, X, newX = NULL, family = list(), obsWeights = NULL, ...) {
   cat("- GLM Interaction was started and is making predictions - \n")
   glm_time <- system.time({
+
+    # chose family dependent upon response variable
+    Y <- as.vector(as.matrix(Y))
+    if (all(Y == 0 | Y == 1)) {
+      family$family <- binomial()
+    } else {
+      family$family <- gaussian() # scat() also reasonable but computationally intense
+    }
+
     if (is.matrix(X)) {
       X <- as.data.frame(X)
     }
-    fit.glm <- glm(Y ~ .^2, data = X, family = family, weights = obsWeights)
+    fit.glm <- glm(Y ~ .^2, data = X, family = family$family, weights = obsWeights)
     if (is.matrix(newX)) {
       newX <- as.data.frame(newX)
     }
