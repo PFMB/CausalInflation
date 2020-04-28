@@ -15,13 +15,13 @@ set.seed(1)
 setwd("/cluster/home/phibauma/CausalInflation")
 
 # specify here how many cores are available for parallel computation (should be 5 here)
-n.cluster <- 5
+n_cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
 load("InflData.RData")
 
 # initiate cluster
-cl <- makeCluster(n.cluster)
+cl <- makeCluster(n_cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 

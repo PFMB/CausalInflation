@@ -74,7 +74,7 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 ## Q- and g- Model are correctly specified
 
 # Initiate cluster
-cl <- makeCluster(n_cluster)
+cl <- makeCluster(n_cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
@@ -113,7 +113,7 @@ t_ime <- system.time({
 (attributes(Sim1)$time <- t_ime)
 (attributes(Sim1)$sessinfo <- sessionInfo())
 (attributes(Sim1)$seed <- .Random.seed)
-saveRDS(Sim1, file = "Sim1Res.RDS")
+saveRDS(Sim1, file = "Sim1.RDS")
 
 ## g-Model is correctly and Q-Model is misspecified
 
@@ -158,7 +158,7 @@ t_ime <- system.time({
 (attributes(Sim1_mis)$time <- t_ime)
 (attributes(Sim1_mis)$sessinfo <- sessionInfo())
 (attributes(Sim1_mis)$seed <- .Random.seed)
-saveRDS(Sim1_mis, file = "Sim1MisRes.RDS")
+saveRDS(Sim1_mis, file = "Sim1Mis.RDS")
 
 stopCluster(cl)
 

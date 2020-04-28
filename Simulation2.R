@@ -14,9 +14,9 @@ set.seed(1)
 setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
-runs      <- 10  # number of simulation runs (take into account failing estimations)
-n_cluster <- 30  # specify here how many cores are available for parallel computation
-n_obs <- 1e2     # number of iid observations in simulated (observed) data sets
+runs      <- 1500  # number of simulation runs (take into account failing estimations)
+n_cluster <- 24    # specify here how many cores are available for parallel computation
+n_obs <- 1e3       # number of iid observations in simulated (observed) data sets
 
 # ------- DEFINE DGP ------- #
 
@@ -77,7 +77,7 @@ Obs_dat <- lapply(Obs_dat, function(x) x[, -1, drop = FALSE])
 # ------- SIMULATE COUNTERFACTUAL DATA ------- #
 
 # counterfactual data set with 1e6 draws for the true ATE
-counter_dat <- sim(D, n = 1e3, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
+counter_dat <- sim(D, n = 1e6, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
 
 # Define parameter of interest: ATE
 # For 3 time points - A1: 1 1 1 1 1 1 vs A0: 0 0 0 0 0 0
@@ -223,20 +223,20 @@ cat("L1: correct and incorrect Q-formula: \n")
 res_all_L1 <- do.call("c", Sim2_L1)
 res_corr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "correct"]))
 res_incorr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "incorrect"]))
-(get_bias_cp(res_corr_L1, true_ATE, 5))
-(get_bias_cp(res_incorr_L1, true_ATE, 5))
+(get_bias_cp(res_corr_L1, true_ATE))
+(get_bias_cp(res_incorr_L1, true_ATE))
 
 cat("L2: correct and incorrect Q-formula: \n")
 res_all_L2 <- do.call("c", Sim2_L2)
 res_corr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "correct"]))
 res_incorr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "incorrect"]))
-(get_bias_cp(res_corr_L2, true_ATE, 5))
-(get_bias_cp(res_incorr_L2, true_ATE, 5))
+(get_bias_cp(res_corr_L2, true_ATE))
+(get_bias_cp(res_incorr_L2, true_ATE))
 
 cat("L3: correct and incorrect Q-formula: \n")
 res_all_L3 <- do.call("c", Sim2_L3)
 res_corr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "correct"]))
 res_incorr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "incorrect"]))
-(get_bias_cp(res_corr_L3, true_ATE, 5))
-(get_bias_cp(res_incorr_L3, true_ATE, 5))
+(get_bias_cp(res_corr_L3, true_ATE))
+(get_bias_cp(res_incorr_L3, true_ATE))
 
