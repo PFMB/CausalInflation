@@ -14,10 +14,8 @@ set.seed(1)
 setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
-runs      <- 3000                     # number of intended simulation runs
-subruns   <- 1500                     # number of valid runs to be evaluated 
-                                      # [in case some runs were unsuccesful] 
-n.cluster <- 24   # specify here how many cores are available for parallel computation
+runs      <- 10  # number of simulation runs
+n.cluster <- 5   # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
@@ -68,8 +66,9 @@ D <- D + action("A0", nodes = action_A0)
 Obs_dat <- vector("list", runs)
 
 # simulate observed data, with n = 1000
+n_obs <- 1e2
 for (ind in seq(Obs_dat)) {
-  Obs_dat[[ind]] <- sim(D, n = 1000, verbose = FALSE) # observed data
+  Obs_dat[[ind]] <- sim(D, n = n_obs, verbose = FALSE) # observed data
 }
 
 # ltmle does not need ID later on
@@ -78,7 +77,7 @@ Obs_dat <- lapply(Obs_dat, function(x) x[, -1, drop = FALSE])
 # ------- SIMULATE COUNTERFACTUAL DATA ------- #
 
 # counterfactual data set with 1 million draws for the true ATE
-counter_dat <- sim(D, n = 1e6, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
+counter_dat <- sim(D, n = 1e3, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
 
 # Define parameter of interest: ATE
 # For 3 time points - A1: 1 1 1 1 1 1 vs A0: 0 0 0 0 0 0
@@ -125,12 +124,12 @@ incor_forms <- list(gforms = new_g_form, Qforms = incor_Q_form)
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
 # Initiate cluster
-cl <- makeCluster(n.cluster)
+cl <- makeCluster(n.cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 
 # define static interventions
-treatment_1 <- matrix(1, nrow = 1000, ncol = 6)
-control_0 <- matrix(0, nrow = 1000, ncol = 6)
+treatment_1 <- matrix(1, nrow = n_obs, ncol = 6)
+control_0 <- matrix(0, nrow = n_obs, ncol = 6)
 
 load("SelectedLearner.RData") # predefined Learner Sets
 
@@ -190,15 +189,12 @@ exe <- function(y) {
   list(correct = cor_ests, incorrect = incor_ests)
 }
 
-# only take #subrund instead of #runs 
-Obs_dat <- Obs_dat[1:subruns]
-l_obs <- length(Obs_dat)
-list1 <- c(Obs_dat, Obs_dat, Obs_dat)
-list2 <- c(list(SL.Set1)[rep(1, l_obs)], list(SL.Set2)[rep(1, l_obs)], list(SL.Set3)[rep(1, l_obs)])
-
 # assemble in list of lists since we can only handle one alternating argument in
 # parlapply()
-data_n_learner <- lapply(1:length(list1), function(idx) {
+list1 <- c(Obs_dat, Obs_dat, Obs_dat)
+reps <- rep(1, runs)
+list2 <- c(list(SL.Set1)[reps], list(SL.Set2)[reps], list(SL.Set3)[reps])
+data_n_learner <- lapply(seq(list1), function(idx) {
   list(data = list1[[idx]], learner = list2[[idx]])
 })
 
@@ -214,12 +210,32 @@ stopCluster(cl)
 (attributes(Sim2)$seed <- .Random.seed)
 saveRDS(Sim2, file = "Sim2Results.RDS")
 
-# ------- GET RESULTS ------- #
-
-res_all <- do.call("c", Sim2)
-res_corr <- do.call("c", unname(res_all[names(res_all) == "correct"]))
-res_incorr <- do.call("c", unname(res_all[names(res_all) == "incorrect"]))
-
+# ------- PRINT RESULTS ------- #
 source("CalcBiasCP.R")
-(get_bias_cp(res_corr, true_ATE))
-(get_bias_cp(res_incorr, true_ATE))
+
+# seperate results by learner sets
+Sim2_L1 <- Sim2[1:runs]
+Sim2_L2 <- Sim2[(runs + 1):(2 * runs)]
+Sim2_L3 <- Sim2[(2 * runs + 1):(3 * runs)]
+
+# L1: correct and incorrect Q-formula
+res_all_L1 <- do.call("c", Sim2_L1)
+res_corr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "correct"]))
+res_incorr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "incorrect"]))
+(get_bias_cp(res_corr_L1, true_ATE))
+(get_bias_cp(res_incorr_L1, true_ATE))
+
+# L2: correct and incorrect Q-formula
+res_all_L2 <- do.call("c", Sim2_L2)
+res_corr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "correct"]))
+res_incorr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "incorrect"]))
+(get_bias_cp(res_corr_L2, true_ATE))
+(get_bias_cp(res_incorr_L2, true_ATE))
+
+# L3: correct and incorrect Q-formula
+res_all_L3 <- do.call("c", Sim2_L3)
+res_corr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "correct"]))
+res_incorr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "incorrect"]))
+(get_bias_cp(res_corr_L3, true_ATE))
+(get_bias_cp(res_incorr_L3, true_ATE))
+
