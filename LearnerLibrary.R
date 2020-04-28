@@ -175,9 +175,9 @@ screen.glmnet_nVar <- function(Y, X, family = list(), alpha = 0.75, nfolds = 5, 
 ### 4) Pearson Correlation Coef. with cor.test()$p.value
 
 screen.corPearson <- function(Y, X, family, obsWeights, id, method = "pearson", minPvalue = 0.01,
-                              minscreen = 2, maxscreen = 8, ...) {
+                              minscreen = 3, maxscreen = 8, ...) {
   if (ncol(X) > 8) {
-    p_val <- sapply(X, function(var) {
+    p_val <- apply(X, 2, function(var) {
       # factors are only selected when no driving metrics seem to be there
       if (length(unique(var)) < 5 | is.factor(var)) {
         return(minPvalue + 1e-4)
@@ -269,7 +269,16 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
       family$family <- "gaussian"
     }
 
-    if (family$family == "gaussian") {
+    # avoid infinite search for split points in trees
+    if (all(apply(X,2,var) == 0)) {
+      fit.rf <- "Empty"
+      attr(fit.rf, "class") <- "try-error"
+      pred <- rep(mean(Y), length(Y))
+      fit <- list(object = fit.rf)
+      cat("- Failed random forest - \n")
+    }
+    
+    if (family$family == "gaussian" & !exists("fit.rf")) {
       fit.rf <- randomForest::randomForest(Y ~ .,
         data = X,
         ntree = ntree, xtest = newX, keep.forest = TRUE,
@@ -283,7 +292,7 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
       }
       fit <- list(object = fit.rf)
     }
-    if (family$family == "binomial") {
+    if (family$family == "binomial" & !exists("fit.rf")) {
       fit.rf <- randomForest::randomForest(
         y = as.factor(Y),
         x = X, ntree = ntree, xtest = newX, keep.forest = TRUE,
@@ -297,7 +306,6 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
       }
       fit <- list(object = fit.rf)
     }
-
     out <- list(pred = pred, fit = fit)
     class(out$fit) <- c("SL.randomForest")
   })
