@@ -1,11 +1,14 @@
-get_bias_cp <- function(est_output, true_ATE) {
+get_bias_cp <- function(est_output, true_ATE, take_first = 10L) {
 
   # est_output: list with estimation output summaries of LTMLE and IPTW (estimator="iptw").
   #             est_output should contain at least 1000 successful model fits but can
-  #             also handle some missings (i.e. NAs).
+  #             also handle failed estimations (i.e. try-error classes).
   #
   # true_ATE: scalar containing the result of simcausal on a counterfactual dataset
   #           with 1e6 draws (imitating the population)
+  #
+  # take_first: scalar indicating how many successful estimations should be taken
+  #             to calculate the abs. bias and coverage probability
   #
   # ouput: a named list indicating the bias and coverage probability
   #        for the LTMLE and the IPTW estimator.
@@ -24,7 +27,7 @@ get_bias_cp <- function(est_output, true_ATE) {
   })
   cat("Share of either failed LMTLE or IPTW estimations:", 1 - mean(succ_grps),"\n")
   succ_grps <- grps[, succ_grps]
-  succ_grps <- succ_grps[, 1:1000]
+  succ_grps <- succ_grps[, 1:take_first]
   succ_estim <- estimates[, as.vector(succ_grps)]
 
   list(

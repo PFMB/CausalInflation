@@ -14,8 +14,8 @@ set.seed(1)
 setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
-runs      <- 10  # number of simulation runs
-n.cluster <- 5   # specify here how many cores are available for parallel computation
+runs      <- 20  # number of simulation runs (take into account failing estimations)
+n.cluster <- 20  # specify here how many cores are available for parallel computation
 
 # ------- DEFINE DGP ------- #
 
