@@ -14,8 +14,9 @@ set.seed(1)
 setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
-runs      <- 20  # number of simulation runs (take into account failing estimations)
-n.cluster <- 20  # specify here how many cores are available for parallel computation
+runs      <- 10  # number of simulation runs (take into account failing estimations)
+n_cluster <- 30  # specify here how many cores are available for parallel computation
+n_obs <- 1e2     # number of iid observations in simulated (observed) data sets
 
 # ------- DEFINE DGP ------- #
 
@@ -65,8 +66,7 @@ D <- D + action("A0", nodes = action_A0)
 # Simulation 2: vector with number of intended runs
 Obs_dat <- vector("list", runs)
 
-# simulate observed data, with n = 1000
-n_obs <- 1e2
+# simulate observed data
 for (ind in seq(Obs_dat)) {
   Obs_dat[[ind]] <- sim(D, n = n_obs, verbose = FALSE) # observed data
 }
@@ -76,7 +76,7 @@ Obs_dat <- lapply(Obs_dat, function(x) x[, -1, drop = FALSE])
 
 # ------- SIMULATE COUNTERFACTUAL DATA ------- #
 
-# counterfactual data set with 1 million draws for the true ATE
+# counterfactual data set with 1e6 draws for the true ATE
 counter_dat <- sim(D, n = 1e3, actions = c("A0", "A1"), verbose = FALSE, rndseed = 123)
 
 # Define parameter of interest: ATE
@@ -124,7 +124,7 @@ incor_forms <- list(gforms = new_g_form, Qforms = incor_Q_form)
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
 # Initiate cluster
-cl <- makeCluster(n.cluster, outfile = "")
+cl <- makeCluster(n_cluster, outfile = "")
 clusterSetRNGStream(cl = cl, iseed = 1)
 
 # define static interventions
@@ -208,9 +208,10 @@ stopCluster(cl)
 (attributes(Sim2)$time <- t_ime)
 (attributes(Sim2)$sessinfo <- sessionInfo())
 (attributes(Sim2)$seed <- .Random.seed)
-saveRDS(Sim2, file = "Sim2Results.RDS")
+saveRDS(Sim2, file = "Sim2.RDS")
 
 # ------- PRINT RESULTS ------- #
+
 source("CalcBiasCP.R")
 
 # seperate results by learner sets
@@ -218,24 +219,24 @@ Sim2_L1 <- Sim2[1:runs]
 Sim2_L2 <- Sim2[(runs + 1):(2 * runs)]
 Sim2_L3 <- Sim2[(2 * runs + 1):(3 * runs)]
 
-# L1: correct and incorrect Q-formula
+cat("L1: correct and incorrect Q-formula: \n")
 res_all_L1 <- do.call("c", Sim2_L1)
 res_corr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "correct"]))
 res_incorr_L1 <- do.call("c", unname(res_all_L1[names(res_all_L1) == "incorrect"]))
-(get_bias_cp(res_corr_L1, true_ATE))
-(get_bias_cp(res_incorr_L1, true_ATE))
+(get_bias_cp(res_corr_L1, true_ATE, 5))
+(get_bias_cp(res_incorr_L1, true_ATE, 5))
 
-# L2: correct and incorrect Q-formula
+cat("L2: correct and incorrect Q-formula: \n")
 res_all_L2 <- do.call("c", Sim2_L2)
 res_corr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "correct"]))
 res_incorr_L2 <- do.call("c", unname(res_all_L2[names(res_all_L2) == "incorrect"]))
-(get_bias_cp(res_corr_L2, true_ATE))
-(get_bias_cp(res_incorr_L2, true_ATE))
+(get_bias_cp(res_corr_L2, true_ATE, 5))
+(get_bias_cp(res_incorr_L2, true_ATE, 5))
 
-# L3: correct and incorrect Q-formula
+cat("L3: correct and incorrect Q-formula: \n")
 res_all_L3 <- do.call("c", Sim2_L3)
 res_corr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "correct"]))
 res_incorr_L3 <- do.call("c", unname(res_all_L3[names(res_all_L3) == "incorrect"]))
-(get_bias_cp(res_corr_L3, true_ATE))
-(get_bias_cp(res_incorr_L3, true_ATE))
+(get_bias_cp(res_corr_L3, true_ATE, 5))
+(get_bias_cp(res_incorr_L3, true_ATE, 5))
 

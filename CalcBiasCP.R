@@ -1,4 +1,4 @@
-get_bias_cp <- function(est_output, true_ATE, take_first = 10L) {
+get_bias_cp <- function(est_output, true_ATE, take_first = 1000L) {
 
   # est_output: list with estimation output summaries of LTMLE and IPTW (estimator="iptw").
   #             est_output should contain at least 1000 successful model fits but can
@@ -50,7 +50,7 @@ get_estimates <- function(est) {
 
 calc_res <- function(est_vec) {
   
-  # Absolute Bias and coverage probability
+  # absolute bias and coverage probability
   # est_vec matrix of successfull fits of either LTMLE or IPTW
   
   ate <- est_vec["ATE", ]

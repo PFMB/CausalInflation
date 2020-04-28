@@ -10,8 +10,9 @@ set.seed(1)
 setwd("/cluster/home/scstepha/CausalInflation")
 
 # setup
-runs      <- 2000                      # number of simulation runs
-n.cluster <-  48   # specify here how many cores are available for parallel computation
+runs      <- 2000  # number of simulation runs
+n_cluster <-  48   # specify here how many cores are available for parallel computation
+n_obs <- 1e3       # number of iid observations in simulated (observed) data sets
 
 # ------- DEFINE DGP ------- #
 
@@ -50,9 +51,9 @@ D <- D + action("A0", nodes = action_A0)
 # Simulation 1: vector with number of intended runs
 Obs_dat <- vector("list", runs)
 
-# simulate observed data, with n = 1000
+# simulate observed data
 for (ind in seq(Obs_dat)) {
-  Obs_dat[[ind]] <- sim(D, n = 1000, verbose = FALSE) # observed data
+  Obs_dat[[ind]] <- sim(D, n = n_obs, verbose = FALSE) # observed data
 }
 
 # ltmle does not need ID later on
@@ -73,7 +74,7 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 ## Q- and g- Model are correctly specified
 
 # Initiate cluster
-cl <- makeCluster(n.cluster)
+cl <- makeCluster(n_cluster)
 clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
@@ -112,7 +113,7 @@ t_ime <- system.time({
 (attributes(Sim1)$time <- t_ime)
 (attributes(Sim1)$sessinfo <- sessionInfo())
 (attributes(Sim1)$seed <- .Random.seed)
-saveRDS(Sim1, file = "Sim1Results.RDS")
+saveRDS(Sim1, file = "Sim1Res.RDS")
 
 ## g-Model is correctly and Q-Model is misspecified
 
@@ -126,7 +127,6 @@ clusterExport(cl, "mis_Q_form")
 
 exe_Sim1_mis <- function(x) {
   SL.Set <- c("SL.glm")
-  attr(SL.Set, "return.fit") <- TRUE
 
   # define static interventions
   treatment_1 <- matrix(1, nrow = nrow(x), ncol = length(grep("A", names(x))))
@@ -158,12 +158,15 @@ t_ime <- system.time({
 (attributes(Sim1_mis)$time <- t_ime)
 (attributes(Sim1_mis)$sessinfo <- sessionInfo())
 (attributes(Sim1_mis)$seed <- .Random.seed)
-saveRDS(Sim1_mis, file = "Sim1MisResults.RDS")
+saveRDS(Sim1_mis, file = "Sim1MisRes.RDS")
 
 stopCluster(cl)
 
-# ------- GET RESULTS ------- #
+# ------- PRINT RESULTS ------- #
 
 source("CalcBiasCP.R")
+
+cat("GLM: correct Q-formula: \n")
 (get_bias_cp(do.call("c", Sim1), true_ATE))
+cat("GLM: incorrect Q-formula: \n")
 (get_bias_cp(do.call("c", Sim1_mis), true_ATE))
