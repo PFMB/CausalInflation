@@ -39,7 +39,7 @@ clusterExport(cl = cl, list(
   "learner_weights_summary_Q", "get_ATE","SL.Est_Theory","SL.Est_Data"
 ))
 
-estimation_ltmle <- function(dat, path = path) {
+estimation_ltmle <- function(dat) {
   
   source("LearnerLibrary.R")
 
