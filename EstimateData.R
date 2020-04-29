@@ -31,18 +31,20 @@ source("WeightsSummary.R")
 # formula to extract ATE
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
+# Learner Sets
+load("SelectedLearner.RData")
+# gbm failes frequently, takes a lot of time and was not selected often during previous analyses
+SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
+SL.Est_Theory <- SL.Est_Data <- SL.Est_Data[1:2]
+
 clusterExport(cl = cl, list(
   "learner_weights_summary_g",
-  "learner_weights_summary_Q", "get_ATE"
+  "learner_weights_summary_Q", "get_ATE","SL.Est_Theory","SL.Est_Data"
 ))
 
 estimation_ltmle <- function(dat, path = path) {
   
   source("LearnerLibrary.R")
-  load("SelectedLearner.RData")
-
-  # gbm failes frequently, takes a lot of time and was not selected often during previous analyses
-  SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
 
   # load nodes, g-/Q-formulas and interventions
   load("NodesFormInterv.RData")
