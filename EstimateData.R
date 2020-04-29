@@ -48,7 +48,7 @@ estimation_ltmle <- function(dat) {
   (nod <- ltmle_prep$nodes)
   (int <- ltmle_prep$invterventions)
   SL.Est_Data
-  SL.Est_Theory)
+  SL.Est_Theory
   summary(dat)
 
   cat("# -------- ScreenLearn ----- Static -------- # \n")
