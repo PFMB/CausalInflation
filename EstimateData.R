@@ -33,9 +33,6 @@ get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$ef
 
 # Learner Sets
 load("SelectedLearner.RData")
-# gbm failes frequently, takes a lot of time and was not selected often during previous analyses
-SL.Est_Data <- SL.Est_Data[-c(10,21,32,43,54)] # exclude GBM
-SL.Est_Theory <- SL.Est_Data <- SL.Est_Data[1:2]
 
 clusterExport(cl = cl, list(
   "learner_weights_summary_g",
