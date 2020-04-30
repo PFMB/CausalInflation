@@ -261,19 +261,11 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
   randomForest_time <- system.time({
     SuperLearner:::.SL.require("randomForest")
 
-    # chose family dependent upon response
-    Y <- as.vector(as.matrix(Y))
-    if (all(Y == 0 | Y == 1)) {
-      family$family <- "binomial"
-    } else {
-      family$family <- "gaussian"
-    }
-
     # avoid infinite search for split points in trees
     if (all(apply(X,2,var) == 0)) {
       fit.rf <- "Empty"
       attr(fit.rf, "class") <- "try-error"
-      pred <- rep(mean(Y), length(Y))
+      pred <- rep(mean(Y), nrow(Xnew))
       fit <- list(object = fit.rf)
       cat("- Failed random forest - \n")
     }
@@ -287,7 +279,7 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
       )
       try(pred <- fit.rf$test$predicted, silent = TRUE)
       if (any(class(fit.rf) == "try-error")) {
-        pred <- rep(mean(Y), length(Y))
+        pred <- rep(mean(Y), nrow(Xnew))
         cat("- Failed random forest - \n")
       }
       fit <- list(object = fit.rf)
@@ -301,7 +293,7 @@ SL.randomForest_base <- function(Y, X, newX = NULL, family = list(), mtry = ifel
       )
       try(pred <- fit.rf$test$votes[, 2], silent = TRUE)
       if (any(class(fit.rf) == "try-error")) {
-        pred <- rep(mean(Y), length(Y))
+        pred <- rep(mean(Y), nrow(Xnew))
         cat("- Failed random forest - \n")
       }
       fit <- list(object = fit.rf)
