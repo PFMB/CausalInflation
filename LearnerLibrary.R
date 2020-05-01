@@ -470,3 +470,46 @@ SL.glm.interaction_info <- function(Y, X, newX = NULL, family = list(), obsWeigh
   cat("- GLM Interaction was finished lasting: ", round(unclass(glm_time)["elapsed"], 2), " - \n")
   return(out)
 }
+
+# Diagnostic Function for the Clever Covariate
+
+cc_trunc <- function(ltmle_est){
+  
+  # input: ltmle output (list), two (A1 and A0) binary matrices (same dimensions as 'abar' from ltmle)
+  # output: matrix with share of truncated prob. and a default summary() statistics for the cc
+  
+  # Function that calculates a summary statistics of the "clever" covariate (cc)
+  # and the trunacted share of intervention probabilities/propensity scores 
+  # from an ltmle output. The summary statistics of the cc is for the last point in time.
+  
+  # for treatment: A1 - Dimension of cum.g/cum.g.unbounded: [observations,time-points,treatment]
+  cum_prob_A1_used <- ltmle_est$cum.g[,ncol(ltmle_est$cum.g),1] # last column = last point in time
+  cum_prob_A1_est  <- ltmle_est$cum.g.unbounded[,ncol(ltmle_est$cum.g),1] # last column = last point in time
+  followed_A1 <- ltmle_est$cum.g.used[,ncol(ltmle_est$cum.g),1] # which subjects acutally followed A1, hence are used for the updating step (since all are uncensored here)
+  cc_A1 <- 1/cum_prob_A1_used # inverse probabilites 
+  cc_A1[!followed_A1] <- 0 # those who did NOT follow A1 in every point in time til the very end are set to 0
+  cc_A1_stat <- unclass(summary(cc_A1)) # summary statistics for the clever covariate
+  
+  # how many probabilities were truncated (among those who followed A1 and are uncensored)
+  trunc_share_A1 <- mean(cum_prob_A1_est[followed_A1]!=cum_prob_A1_used[followed_A1])
+  
+  # for control: A0 - Dimension of cum.g/cum.g.unbounded: [observations,time-points,control]
+  cum_prob_A0_used <- ltmle_est$cum.g[,ncol(ltmle_est$cum.g),2] # last column = last point in time
+  cum_prob_A0_est  <- ltmle_est$cum.g.unbounded[,ncol(ltmle_est$cum.g),2] # last column = last point in time
+  followed_A0 <- ltmle_est$cum.g.used[,ncol(ltmle_est$cum.g),2] # which subjects acutally followed A0, hence are used for the updating step (since all are uncensored here)
+  cc_A0 <- 1/cum_prob_A0_used # inverse probabilites 
+  cc_A0[!followed_A0] <- 0 # those who did NOT follow A0 in every point in time til the very end are set to 0
+  cc_A0_stat <- unclass(summary(cc_A0)) # summary statistics for the clever covariate
+  
+  # how many probabilites were truncated (among those who followed A0 and are uncensored)
+  trunc_share_A0 <- mean(cum_prob_A0_est[followed_A0]!=cum_prob_A0_used[followed_A0])
+  
+  # collect results for output
+  cc_trunc_matrix <- matrix(c(cc_A0_stat,trunc_share_A0,cc_A1_stat,trunc_share_A1),7,2)
+  rownames(cc_trunc_matrix) <- c(names(cc_A0_stat),"TruncShare")
+  colnames(cc_trunc_matrix) <- c("Control","Treatment")
+  
+  cc_info <- list(cc_trunc_matrix=cc_trunc_matrix,dist_cc_A1=cc_A1,dist_cc_A0=cc_A0)
+  
+  return(cc_info)
+}
