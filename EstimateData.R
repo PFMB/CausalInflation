@@ -171,7 +171,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(EconDAGDyn), silent = TRUE),
     iptw = try(get_ATE(EconDAGDyn, est = "iptw"), silent = TRUE)
   )
-  EconDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(EconDAGDyn), silet = TRUE))
+  EconDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(EconDAGDyn), silent = TRUE))
 
   cat("# -------- PlainDAG ----- Static -------- # \n")
 
