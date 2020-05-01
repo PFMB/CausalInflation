@@ -76,7 +76,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(ScreenLearnSta), silent = TRUE),
     iptw = try(get_ATE(ScreenLearnSta, est = "iptw"), silent = TRUE)
   )
-  ScreenLearnSta <- list(est_out = ests, weights_out = learn_weights, cc = cc_trunc(ScreenLearnSta))
+  ScreenLearnSta <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(ScreenLearnSta), silent = TRUE))
 
   cat("# -------- ScreenLearn ----- Dynamic -------- # \n")
 
@@ -106,7 +106,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(ScreenLearnDyn), silent = TRUE),
     iptw = try(get_ATE(ScreenLearnDyn, est = "iptw"), silent = TRUE)
   )
-  ScreenLearnDyn <- list(est_out = ests, weights_out = learn_weights, cc = cc_trunc(ScreenLearnDyn))
+  ScreenLearnDyn <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(ScreenLearnDyn), silent = TRUE))
 
   cat("# -------- EconDAG ----- Static -------- # \n")
 
@@ -138,7 +138,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(EconDAGSta), silent = TRUE),
     iptw = try(get_ATE(EconDAGSta, est = "iptw"), silent = TRUE)
   )
-  EconDAGSta <- list(est_out = ests, weights_out = learn_weights, cc = cc_trunc(EconDAGSta))
+  EconDAGSta <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(EconDAGSta), silent = TRUE))
 
   cat("# -------- EconDAG ----- Dynamic -------- # \n")
 
@@ -171,7 +171,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(EconDAGDyn), silent = TRUE),
     iptw = try(get_ATE(EconDAGDyn, est = "iptw"), silent = TRUE)
   )
-  EconDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = cc_trunc(EconDAGDyn))
+  EconDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(EconDAGDyn), silet = TRUE))
 
   cat("# -------- PlainDAG ----- Static -------- # \n")
 
@@ -197,7 +197,7 @@ estimation_ltmle <- function(dat) {
   # extract learner weights from estimation
   Q_mean <- try(learner_weights_summary_Q(PlainDAGSta), silent = TRUE)
   g_mean <- try(learner_weights_summary_g(PlainDAGSta), silent = TRUE)
-  learn_weights <- list(Qweights = Q_mean, gweights = g_mean, cc = cc_trunc(PlainDAGSta))
+  learn_weights <- list(Qweights = Q_mean, gweights = g_mean, cc = try(cc_trunc(PlainDAGSta), silent = TRUE))
   
   # extract ATEs from estimation
   ests <- list(
@@ -237,7 +237,7 @@ estimation_ltmle <- function(dat) {
     ltmle = try(get_ATE(PlainDAGDyn), silent = TRUE),
     iptw = try(get_ATE(PlainDAGDyn, est = "iptw"), silent = TRUE)
   )
-  PlainDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = cc_trunc(PlainDAGDyn))
+  PlainDAGDyn <- list(est_out = ests, weights_out = learn_weights, cc = try(cc_trunc(PlainDAGDyn), silent = TRUE))
 
   list(
     ScreenLearnSta = ScreenLearnSta, ScreenLearnDyn = ScreenLearnDyn,
