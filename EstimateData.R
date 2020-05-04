@@ -12,7 +12,7 @@ library(vcd)
 set.seed(1)
 
 # insert working directory
-setwd("/cluster/home/phibauma/CausalInflation")
+setwd("")
 
 # specify here how many cores are available for parallel computation (should be 5 here)
 n_cluster <- 5

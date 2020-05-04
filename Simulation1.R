@@ -7,7 +7,7 @@ library(ltmle)
 set.seed(1)
 
 # insert working directory here
-setwd("/cluster/home/scstepha/CausalInflation")
+setwd("")
 
 # setup
 runs      <- 2000  # number of simulation runs

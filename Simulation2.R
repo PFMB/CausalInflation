@@ -11,7 +11,7 @@ library(parallel)
 set.seed(1)
 
 # insert working directory here
-setwd("/cluster/home/scstepha/CausalInflation")
+setwd("")
 
 # setup
 runs      <- 1500  # number of simulation runs (take into account failing estimations)
