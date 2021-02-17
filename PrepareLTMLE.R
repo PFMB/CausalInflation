@@ -30,87 +30,87 @@ stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_inf]))), ncol = 11)
 ## BASE
 
 Q_base <- c(MoneySupply_1998 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998",
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998",
             MoneySupply_1999 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             ConsumerPrices_1999",
             MoneySupply_2000 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 + 
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + 
             CBIndependence_2000 + ConsumerPrices_1999 + ConsumerPrices_2000",
             MoneySupply_2001 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + 
-            ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 ",
+            ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001",
             MoneySupply_2002 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + ConsumerPrices_2002 + 
             ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002",
             MoneySupply_2003 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + ConsumerPrices_1999 + 
             ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003",
             MoneySupply_2004 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 +
             CBIndependence_2004 +  ConsumerPrices_1999 + ConsumerPrices_2000 + 
             ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003 + ConsumerPrices_2004",
             MoneySupply_2005 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 +
             CBIndependence_2004 + CBIndependence_2005 + ConsumerPrices_1999 + 
             ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003 + 
             ConsumerPrices_2004 + ConsumerPrices_2005",
             MoneySupply_2006 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 +
             CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 +
             ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + 
             ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006",
             MoneySupply_2007 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 +
             CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + CBIndependence_2007 +
             ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + 
             ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006 +
             ConsumerPrices_2007",
             MoneySupply_2008 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + 
-            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBIndependence_1999 +
+            CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 +
             CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 +
             CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + CBIndependence_2007 +
             CBIndependence_2008 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + 
             ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006 +
             ConsumerPrices_2007 + ConsumerPrices_2008")
 
-g_base <- c("CBIndependence_1998 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998",
+g_base <- c("CBIndependence_1998 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998",
             "CBIndependence_1999 ~ ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + ConsumerPrices_1999",
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + ConsumerPrices_1999",
             "CBIndependence_2000 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + ConsumerPrices_1999 + ConsumerPrices_2000",
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + ConsumerPrices_1999 + ConsumerPrices_2000",
             "CBIndependence_2001 ~ ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001",
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001",
             "CBIndependence_2002 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + ConsumerPrices_1999 + ConsumerPrices_2000 + 
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + ConsumerPrices_1999 + ConsumerPrices_2000 + 
             ConsumerPrices_2001 + ConsumerPrices_2002",
             "CBIndependence_2003 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 +
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 +
             ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003",
             "CBIndependence_2004 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003
             ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003 + ConsumerPrices_2004",
             "CBIndependence_2005 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
             CBIndependence_2004 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003 + 
             ConsumerPrices_2004 + ConsumerPrices_2005",
             "CBIndependence_2006 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
             CBIndependence_2004 + CBIndependence_2005 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + ConsumerPrices_2002 + 
             ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006", 
             "CBIndependence_2007 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
             CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + ConsumerPrices_1999 + ConsumerPrices_2000 + ConsumerPrices_2001 + 
             ConsumerPrices_2002 + ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006 + ConsumerPrices_2007", 
             "CBIndependence_2008 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + GDPpc_1998 +
-            CBIndependence_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
+            CBIndependence_1998 + CBTransparency_1998 + PolInstability_1998 + PolInstitution_1998 + CBIndependence_1999 + CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + 
             CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + CBIndependence_2007 + ConsumerPrices_1999 + ConsumerPrices_2000 + 
             ConsumerPrices_2001 + ConsumerPrices_2002 + ConsumerPrices_2003 + ConsumerPrices_2004 + ConsumerPrices_2005 + ConsumerPrices_2006 + 
             ConsumerPrices_2007 + ConsumerPrices_2008")
