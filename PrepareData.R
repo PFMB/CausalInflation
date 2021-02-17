@@ -1,13 +1,15 @@
 rm(list = ls()) # clear enviroment
 graphics.off() # clear plots
 library(mFilter) # output gap
+library(plyr)
 
 #------ MERGE TWO DATA SOURCES ------#
 
 # 5 imputed data.frames from Amelia II (Amelia Output)
-load(file = "~/rdata/phibauma/CausalInflation/infl_XYI_imputed.RData")
+load(file = "infl_XYI_imputed.RData")
 # successful imputation may be checked first. See diagnostic plots!
 a.out <- infl_XYI$imputations
+#a.out$imp1[,c("id","year","class_wb")]
 
 # meausured variables for 124 countries (imputed)
 # output_gap and for_r_gdp is added below
@@ -24,7 +26,7 @@ infl <- a.out$imp1[, c("id", "year", meas_full_var), drop = FALSE]
 nrow(na.omit(infl))
 
 # some variables were not imputed, i.e. CBI and Transparency.
-load("~/rdata/phibauma/infl-determinants/Data/4DataAnalysis/infl_Z.Rdata")
+load("infl_Z.Rdata")
 infl_Z <- na.omit(infl_Z[, c("id", "year", meas_red_var), drop = FALSE])
 
 # countries participating in the study
@@ -34,7 +36,7 @@ inters_countries <- intersect(infl_Z$id, infl$id)
 # Proportions of countries income level according to the World Bank's classificaion
 idx_count <- a.out[[1]]$id %in% inters_countries
 idx_year <- a.out[[1]]$year %in% 1998:2010
-wb_class <- plyr::ddply(a.out[[1]][idx_count&idx_year,],.(id), function(x) names(which.max(table(x$class_wb))))
+wb_class <- ddply(a.out[[1]][idx_count&idx_year,],.(id), function(x) names(which.max(table(x$class_wb))))
 table(wb_class$V1)/nrow(wb_class)
 
 # Variables, that are imputed but not analysed in the actual analysis since they
@@ -115,7 +117,7 @@ nms <- paste0(nms,"_",years)
 for(idx in 1:length(a.out_copy)) names(a.out_copy[[idx]]) <- nms
 
 # additional structural assumption given through ordering
-causal_ord <- unlist(read.csv("~/rdata/phibauma/CausalInflation/CausalOrder.csv", stringsAsFactors = FALSE, header = FALSE))
+causal_ord <- unlist(read.csv("CausalOrder.csv", stringsAsFactors = FALSE, header = FALSE))
 
 # variables given in the data set that are not needed for the analysis
 # since they are not defined in the structural model (DAG)
@@ -127,5 +129,5 @@ a.out_copy <- lapply(a.out_copy, function(imp) imp[,causal_ord])
 # save all
 attributes(a.out_copy) <- NULL
 infl <- a.out_copy
-save(infl,file="~/rdata/phibauma/CausalInflation/Data/causalinfl.RData")
+save(infl,file="causalinfl_revised.RData")
 

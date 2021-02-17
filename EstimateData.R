@@ -12,13 +12,13 @@ library(vcd)
 set.seed(1)
 
 # insert working directory
-setwd("")
+setwd("/cluster/home/phibauma/CausalInflation")
 
 # specify here how many cores are available for parallel computation (should be 5 here)
 n_cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
-load("InflData.RData")
+load("causalinfl_revised.RData")
 
 # initiate cluster
 cl <- makeCluster(n_cluster, outfile = "")
@@ -256,7 +256,7 @@ stopCluster(cl)
 (attributes(res)$time <- t_ime)
 (attributes(res)$sessinfo <- sessionInfo())
 (attributes(res)$seed <- .Random.seed)
-saveRDS(res, file = "EstResults.RDS")
+saveRDS(res, file = "EstResults_18Feb21.RDS")
 
 # retrieve results
 prep_res <- function(res) {
