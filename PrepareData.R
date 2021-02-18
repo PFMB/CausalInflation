@@ -9,7 +9,9 @@ library(plyr)
 load(file = "infl_XYI_imputed.RData")
 # successful imputation may be checked first. See diagnostic plots!
 a.out <- infl_XYI$imputations
-#a.out$imp1[,c("id","year","class_wb")]
+d <- a.out$imp1[,c("id","year","class_wb")] # for subsetting by income class
+
+#1-mean(a.out[[1]][,3:ncol(a.out[[1]])] == a.out[[2]][,3:ncol(a.out[[1]])]) # 2.7%
 
 # meausured variables for 124 countries (imputed)
 # output_gap and for_r_gdp is added below
@@ -91,43 +93,56 @@ for (i in 1:5) {
   a.out[[i]]$cbi <- NULL
 }
 
-# from long to wide for LTMLE
-a.out_copy <- list(length=5)
-for (i in 1:5){
-  a.out_copy[[i]] <- reshape(a.out[[i]],timevar = "year", idvar = "id", direction = "wide")
-  a.out_copy[[i]] <- a.out_copy[[i]][,-1] # ltmle does not need id
+# income class by world bank definition
+countries <- a.out[[1]]$id
+d <- d[d$year %in% c(1998:2010) & d$id %in% countries,]
+income_dist <- ddply(d, .(id), function(x) table(x$class_wb))
+l_ow <- droplevels(income_dist[income_dist$L + income_dist$LM >= 7,]$id)
+h_igh <- droplevels(income_dist[income_dist$UM + income_dist$H >= 7,]$id)
+#saveRDS(list("high" = droplevels(h_igh), "low" = droplevels(l_ow)), file = "WorldBankClass.RDS")
+
+make_causal <- function(a_d){
+  
+  # from long to wide for LTMLE
+  a_d_c <- list(length = length(a_d))
+  for (i in 1:5){
+    a_d_c[[i]] <- reshape(a_d[[i]],timevar = "year", idvar = "id", direction = "wide")
+    a_d_c[[i]] <- a_d_c[[i]][,-1] # ltmle does not need id
+  }
+  
+  #------ MATCH VARIABLES FROM DAG WITH DATA ------#
+  
+  proxies <- c(r_gdp = "Output", inflation_imf = "ConsumerPrices", credit = "BankLoans", past_median = "PastInflation",
+               openness = "TradeOpenness", fin_openness = "CapitalOpenness", debt = "PublicDebt", r_gdp_pc = "GDPpc",
+               binary_cbi = "CBIndependence", m2_growth = "MoneySupply", transparency = "CBTransparency", cl = "PolInstitution",
+               stability = "PolInstability", past_infl = "InflationExpectations", age_65 = "AgeStructure", budget_balance =
+                 "PrimaryBalance", for_r_gdp = "ForeignOutput", energy_price = "EnergyPrices", output_gap = "OutputGap")
+  
+  #------ DATA.FRAME ORDERING IS ADJUSTED TO ASSUMED CAUSAL TIME ORDERING ------#
+  
+  # rename names from the data to match causal ordering
+  nms <- names(a_d_c[[1]])
+  vars <- substr(nms,1,nchar(nms)-5)
+  years <- substr(nms,nchar(nms)-3,nchar(nms))
+  for(idx in 1:length(proxies)) nms[vars == names(proxies[idx])] <- proxies[idx]
+  nms <- paste0(nms,"_",years)
+  for(idx in 1:length(a_d_c)) names(a_d_c[[idx]]) <- nms
+  
+  # additional structural assumption given through ordering
+  causal_ord <- unlist(read.csv("CausalOrder.csv", stringsAsFactors = FALSE, header = FALSE))
+  
+  # variables given in the data set that are not needed for the analysis
+  # since they are not defined in the structural model (DAG)
+  setdiff(nms,causal_ord)
+  
+  # reorder
+  lapply(a_d_c, function(imp) imp[,causal_ord])
 }
 
-#------ MATCH VARIABLES FROM DAG WITH DATA ------#
+all_countries <- make_causal(a.out)
+high_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% h_igh,]))
+low_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% l_ow,]))
 
-proxies <- c(r_gdp = "Output", inflation_imf = "ConsumerPrices", credit = "BankLoans", past_median = "PastInflation",
-             openness = "TradeOpenness", fin_openness = "CapitalOpenness", debt = "PublicDebt", r_gdp_pc = "GDPpc",
-             binary_cbi = "CBIndependence", m2_growth = "MoneySupply", transparency = "CBTransparency", cl = "PolInstitution",
-             stability = "PolInstability", past_infl = "InflationExpectations", age_65 = "AgeStructure", budget_balance =
-               "PrimaryBalance", for_r_gdp = "ForeignOutput", energy_price = "EnergyPrices", output_gap = "OutputGap")
-
-#------ DATA.FRAME ORDERING IS ADJUSTED TO ASSUMED CAUSAL TIME ORDERING ------#
-
-# rename names from the data to match causal ordering
-nms <- names(a.out_copy[[1]])
-vars <- substr(nms,1,nchar(nms)-5)
-years <- substr(nms,nchar(nms)-3,nchar(nms))
-for(idx in 1:length(proxies)) nms[vars == names(proxies[idx])] <- proxies[idx]
-nms <- paste0(nms,"_",years)
-for(idx in 1:length(a.out_copy)) names(a.out_copy[[idx]]) <- nms
-
-# additional structural assumption given through ordering
-causal_ord <- unlist(read.csv("CausalOrder.csv", stringsAsFactors = FALSE, header = FALSE))
-
-# variables given in the data set that are not needed for the analysis
-# since they are not defined in the structural model (DAG)
-setdiff(nms,causal_ord)
-
-# reorder
-a.out_copy <- lapply(a.out_copy, function(imp) imp[,causal_ord])
-
-# save all
-attributes(a.out_copy) <- NULL
-infl <- a.out_copy
-save(infl,file="causalinfl_revised.RData")
+infl <- list("all" = all_countries, "high" = high_countries, "low" = low_countries)
+save(infl, file = "causalinfl_revised.RData")
 

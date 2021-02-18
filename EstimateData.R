@@ -47,6 +47,11 @@ estimation_ltmle <- function(dat) {
   load("NodesFormInterv.RData")
   nod <- ltmle_prep$nodes
   int <- ltmle_prep$invterventions
+  
+  ids <- rownames(dat)
+  int$dyn_intv <- int$dyn_intv[rownames(int$dyn_intv) %in% ids,]
+  int$stat0 <- int$stat0[1:nrow(dat),]
+  int$stat1 <- int$stat1[1:nrow(dat),]
 
   cat("# -------- ScreenLearn ----- Static -------- # \n")
 
@@ -246,17 +251,34 @@ estimation_ltmle <- function(dat) {
   )
 }
 
-# run estimation
+# all 59 countries
 t_ime <- system.time({
-res <- parLapply(cl, infl, estimation_ltmle)
+  res_all <- parLapply(cl, infl$all, estimation_ltmle)
 })
-stopCluster(cl)
+(attributes(res_all)$time <- t_ime)
+(attributes(res_all)$sessinfo <- sessionInfo())
+(attributes(res_all)$seed <- .Random.seed)
+saveRDS(res_all, file = "EstResults_all.RDS")
 
-# save results
-(attributes(res)$time <- t_ime)
-(attributes(res)$sessinfo <- sessionInfo())
-(attributes(res)$seed <- .Random.seed)
-saveRDS(res, file = "EstResults_18Feb21.RDS")
+# 33 low/lower-middle income countries
+t_ime <- system.time({
+  res_low <- parLapply(cl, infl$low, estimation_ltmle)
+})
+(attributes(res_low)$time <- t_ime)
+(attributes(res_low)$sessinfo <- sessionInfo())
+(attributes(res_low)$seed <- .Random.seed)
+saveRDS(res_low, file = "EstResults_low.RDS")
+
+# 26 high/higher-middle income countries
+t_ime <- system.time({
+  res_high <- parLapply(cl, infl$high, estimation_ltmle)
+})
+(attributes(res_high)$time <- t_ime)
+(attributes(res_high)$sessinfo <- sessionInfo())
+(attributes(res_high)$seed <- .Random.seed)
+saveRDS(res_high, file = "EstResults_high.RDS")
+
+stopCluster(cl)
 
 # retrieve results
 prep_res <- function(res) {
@@ -270,7 +292,7 @@ prep_res <- function(res) {
 }
 
 # LTMLE: combine/average the results from above with Rubins Rule and p2s
-ltmle_res <- lapply(res, function(analyzed_set) {
+ltmle_res <- lapply(res_all, function(analyzed_set) {
   sapply(analyzed_set, function(est_strategy) est_strategy$est_out$ltmle)
 })
 ltmle_res <- lapply(ltmle_res, prep_res)

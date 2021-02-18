@@ -4,7 +4,7 @@ path <- "~/RStHomeDir/GitHub/CausalInflation/"
 
 # load 5 imputed data.frames that are analyzed
 load(paste0(path, "causalinfl_revised.RData"))
-dat <- infl[[1]]
+dat <- infl$all[[1]]
 nodes <- names(dat)
 
 # 11 Q-forms
