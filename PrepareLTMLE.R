@@ -84,7 +84,7 @@ g_base <- c(paste0("CBIndependence_1998 ~", p_v(base_nod)),
 
 # two-year economic cycle: 
 # MoneySupply_1998 is formula for ConsumerPrices_2000 so only variables before MoneySupply_1998 are included
-# MoneySupply_1999 is formula for ConsumerPrices_2001 so only variables in the same year and before MoneySupply_1999 are included
+# MoneySupply_1999 is formula for ConsumerPrices_2001 so only variables in the same year (i.e. 1999) and before MoneySupply_1999 are included
 # and so on...
 # treat econ cycles for each t separately. Cycle in t-1 does not have an impact on t. 
 # That is the reason that MoneySupply_2008 does not depend on any variable <2008.
