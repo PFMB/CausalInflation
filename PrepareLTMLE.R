@@ -25,7 +25,7 @@ base_nod <- nodes[1:10]
 conf <- c("PolInstability_1999","PolInstitution_1999","CBTransparency_1999","PastInflation_1999")
 mod_y <- function(st, y) {
   ne <- substr(st,1,nchar(st) - 5)
-  paste(ne,y,sep = "_")
+  paste(ne,rep(y, each = length(ne)),sep = "_")
 }
 p_v <- function(x) paste(x, collapse = "+")
 
@@ -35,50 +35,31 @@ dyn_intv <- (dat[,past_inf] < 0 | dat[,past_inf] > 5)*1
 stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_inf]))), ncol = 11)
 stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_inf]))), ncol = 11)
 
-## BASE (= PLAIN)
+## PLAIN
 
 Q_base <- c(MoneySupply_1998 = paste0("Q.kplus1 ~", p_v(base_nod)," + CBIndependence_1998"),
-            MoneySupply_1999 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999"),
-            MoneySupply_2000 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 
-                                      + CBIndependence_2000"),
-            MoneySupply_2001 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 
-                                      + CBIndependence_2000 + CBIndependence_2001"),
-            MoneySupply_2002 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 + 
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002"),
-            MoneySupply_2003 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003"),
-            MoneySupply_2004 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + CBIndependence_2004"),
-            MoneySupply_2005 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + CBIndependence_2004 + CBIndependence_2005"),
-            MoneySupply_2006 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006"),
-            MoneySupply_2007 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), p_v(mod_y(conf, 2007)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + CBIndependence_2007"),
-            MoneySupply_2008 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)),  p_v(mod_y(conf, 2002)),  p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), p_v(mod_y(conf, 2007)), p_v(mod_y(conf, 2008)), sep = "+"),
-                                      "+ CBIndependence_1998 + CBIndependence_1999 +
-                                      CBIndependence_2000 + CBIndependence_2001 + CBIndependence_2002 + CBIndependence_2003 + CBIndependence_2004 + CBIndependence_2005 + CBIndependence_2006 + CBIndependence_2007 + CBIndependence_2008"))
+            MoneySupply_1999 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y("CBIndependence_1998", 1998:1999)), sep = "+")),
+            MoneySupply_2000 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2000)), p_v(mod_y("CBIndependence_1998", 1998:2000)), sep = "+")),
+            MoneySupply_2001 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2001)), p_v(mod_y("CBIndependence_1998", 1998:2001)), sep = "+")),
+            MoneySupply_2002 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2002)), p_v(mod_y("CBIndependence_1998", 1998:2002)), sep = "+")),
+            MoneySupply_2003 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2003)), p_v(mod_y("CBIndependence_1998", 1998:2003)), sep = "+")),
+            MoneySupply_2004 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2004)), p_v(mod_y("CBIndependence_1998", 1998:2004)), sep = "+")),
+            MoneySupply_2005 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2005)), p_v(mod_y("CBIndependence_1998", 1998:2005)), sep = "+")),
+            MoneySupply_2006 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2006)), p_v(mod_y("CBIndependence_1998", 1998:2006)), sep = "+")),
+            MoneySupply_2007 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2007)), p_v(mod_y("CBIndependence_1998", 1998:2007)), sep = "+")),
+            MoneySupply_2008 = paste0("Q.kplus1 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2008)), p_v(mod_y("CBIndependence_1998", 1998:2008)), sep = "+")))
 
 g_base <- c(paste0("CBIndependence_1998 ~", p_v(base_nod)),
             paste0("CBIndependence_1999 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), sep = "+"),"+ CBIndependence_1998"),
-            paste0("CBIndependence_2000 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), sep = "+"),"+ CBIndependence_1999"),
-            paste0("CBIndependence_2001 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), sep = "+"),"+ CBIndependence_2000"),
-            paste0("CBIndependence_2002 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), sep = "+"),"+ CBIndependence_2001"),
-            paste0("CBIndependence_2003 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), sep = "+"),"+ CBIndependence_2002"),
-            paste0("CBIndependence_2004 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), sep = "+"),"+ CBIndependence_2003"),
-            paste0("CBIndependence_2005 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), sep = "+"),"+ CBIndependence_2004"),
-            paste0("CBIndependence_2006 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), sep = "+"),"+ CBIndependence_2005"),
-            paste0("CBIndependence_2007 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), p_v(mod_y(conf, 2007)), sep = "+"),"+ CBIndependence_2006"),
-            paste0("CBIndependence_2008 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999)), p_v(mod_y(conf, 2000)), p_v(mod_y(conf, 2001)), p_v(mod_y(conf, 2002)), p_v(mod_y(conf, 2003)), p_v(mod_y(conf, 2004)), p_v(mod_y(conf, 2005)), p_v(mod_y(conf, 2006)), p_v(mod_y(conf, 2007)), p_v(mod_y(conf, 2008)), sep = "+"),"+ CBIndependence_2007"))
+            paste0("CBIndependence_2000 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2000)), sep = "+"),"+ CBIndependence_1999"),
+            paste0("CBIndependence_2001 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2001)), sep = "+"),"+ CBIndependence_2000"),
+            paste0("CBIndependence_2002 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2002)), sep = "+"),"+ CBIndependence_2001"),
+            paste0("CBIndependence_2003 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2003)), sep = "+"),"+ CBIndependence_2002"),
+            paste0("CBIndependence_2004 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2004)), sep = "+"),"+ CBIndependence_2003"),
+            paste0("CBIndependence_2005 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2005)), sep = "+"),"+ CBIndependence_2004"),
+            paste0("CBIndependence_2006 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2006)), sep = "+"),"+ CBIndependence_2005"),
+            paste0("CBIndependence_2007 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2007)), sep = "+"),"+ CBIndependence_2006"),
+            paste0("CBIndependence_2008 ~", paste(p_v(base_nod), p_v(mod_y(conf, 1999:2008)), sep = "+"),"+ CBIndependence_2007"))
 
 ## ECON
 
@@ -116,17 +97,17 @@ Q_econ <- c(MoneySupply_1998 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + P
 
 # g-form Econ:
 # past CBIndependence variables had to be added to improve prediction in subspaces. Positivity violations and heavy truncation was prevalent before.
-g_econ <- c(paste0("CBIndependence_1998 ~", p_v(base_nod)," + CBIndependence_1998"),
-            paste0("CBIndependence_1999 ~", p_v(mod_y(conf, 1999))," + CBIndependence_1998"),
-            paste0("CBIndependence_2000 ~", p_v(mod_y(conf, 2000))," + CBIndependence_1999"),
-            paste0("CBIndependence_2001 ~", p_v(mod_y(conf, 2001))," + CBIndependence_2000"),
-            paste0("CBIndependence_2002 ~", p_v(mod_y(conf, 2002))," + CBIndependence_2001"),
-            paste0("CBIndependence_2003 ~", p_v(mod_y(conf, 2003))," + CBIndependence_2002"),
-            paste0("CBIndependence_2004 ~", p_v(mod_y(conf, 2004))," + CBIndependence_2003"),
-            paste0("CBIndependence_2005 ~", p_v(mod_y(conf, 2005))," + CBIndependence_2004"),
-            paste0("CBIndependence_2006 ~", p_v(mod_y(conf, 2006))," + CBIndependence_2005"),
-            paste0("CBIndependence_2007 ~", p_v(mod_y(conf, 2007))," + CBIndependence_2006"),
-            paste0("CBIndependence_2008 ~", p_v(mod_y(conf, 2008))," + CBIndependence_2007"))
+g_econ <- c(paste0("CBIndependence_1998 ~", p_v(base_nod)),
+            paste0("CBIndependence_1999 ~", p_v(mod_y(base_nod, 1999))," + CBIndependence_1998"),
+            paste0("CBIndependence_2000 ~", p_v(mod_y(base_nod, 2000))," + CBIndependence_1999"),
+            paste0("CBIndependence_2001 ~", p_v(mod_y(base_nod, 2001))," + CBIndependence_2000"),
+            paste0("CBIndependence_2002 ~", p_v(mod_y(base_nod, 2002))," + CBIndependence_2001"),
+            paste0("CBIndependence_2003 ~", p_v(mod_y(base_nod, 2003))," + CBIndependence_2002"),
+            paste0("CBIndependence_2004 ~", p_v(mod_y(base_nod, 2004))," + CBIndependence_2003"),
+            paste0("CBIndependence_2005 ~", p_v(mod_y(base_nod, 2005))," + CBIndependence_2004"),
+            paste0("CBIndependence_2006 ~", p_v(mod_y(base_nod, 2006))," + CBIndependence_2005"),
+            paste0("CBIndependence_2007 ~", p_v(mod_y(base_nod, 2007))," + CBIndependence_2006"),
+            paste0("CBIndependence_2008 ~", p_v(mod_y(base_nod, 2008))," + CBIndependence_2007"))
 
 ltmle_prep <- list(nodes = list("A" = A_nod, "L" = L_nod, "Y" = y_nod, "base" = base_nod), 
                    form_base = list("g_base" = g_base, "Q_base" = Q_base),
