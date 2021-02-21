@@ -50,7 +50,7 @@ source(paste0(path,"LearnerLibrary.R"))
 SL.Est_Theory <- SL.Est_Theory[-10] # gbm consumes too much memory and does not help much either
 
 clusterExport(cl = cl, list(
-  "learner_weights_summary_g", "learner_weights_summary_Q","get_ATE","cc_trunc","nod"
+  "learner_weights_summary_g", "learner_weights_summary_Q","get_ATE","cc_trunc","nod","path"
 ))
 
 est <- function(d_s, Q_fm, g_fm, treat, cntrl, SL_lib) {
@@ -58,6 +58,7 @@ est <- function(d_s, Q_fm, g_fm, treat, cntrl, SL_lib) {
   # workhorse for all ltmle estimations
   
   seed <- .Random.seed
+  source(paste0(path,"LearnerLibrary.R")) # for all manual learners
   
   res <- tryCatch(
     {
