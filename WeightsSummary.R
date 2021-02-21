@@ -1,3 +1,27 @@
+prep_res <- function(res) {
+
+  # retrieve results from ltmle outputs and return matrix
+  
+  est <- res$estimate
+  std <- res$std.dev
+  CI <- res$CI
+  pvalues <- res$pvalue
+  cbind(est, std, CI, pvalues)
+}
+
+get_results <- function(res){
+  
+  # average results with Rubins Rule
+  
+  res_coll <- lapply(res, function(analyzed_set) analyzed_set$est_out$ltmle)
+  res_coll <- lapply(res_coll, prep_res)
+  res_coll <- do.call("rbind", res_coll)
+  res_coll <- BaBooN::MI.inference(thetahat = res_coll[,"est"],
+                                   varhat.thetahat = res_coll[,"std"]^2)
+  cat(sprintf("MI result -- ATE:%.2f, CI:[%.2f,%.2f]", res_coll$MI.Est, res_coll$CI.low, res_coll$CI.up),"\n")
+  unlist(res_coll)
+}
+
 learner_weights_summary_Q <- function(ltmle_est, mean_tf = TRUE){
   
   # takes ltmle output and extracts the coefficient/weight of each learner in every 
