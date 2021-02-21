@@ -46,8 +46,8 @@ clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
 source(paste0(path,"LearnerLibrary.R"))
-SL.Est_Theory <- SL.Est_Data <- c("SL.glm","SL.mean") # for fast test runs
-#SL.Est_Theory <- SL.Est_Theory[-10] # gbm consumes too much memory and does not help much either
+#SL.Est_Theory <- SL.Est_Data <- c("SL.glm","SL.mean") # for fast test runs
+SL.Est_Theory <- SL.Est_Theory[-10] # gbm consumes too much memory and does not help much either
 
 clusterExport(cl = cl, list(
   "learner_weights_summary_g", "learner_weights_summary_Q","get_ATE","cc_trunc","nod"
