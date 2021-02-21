@@ -18,7 +18,7 @@ get_results <- function(res){
   res_coll <- do.call("rbind", res_coll)
   res_coll <- BaBooN::MI.inference(thetahat = res_coll[,"est"],
                                    varhat.thetahat = res_coll[,"std"]^2)
-  cat(sprintf("MI result -- ATE:%.2f, CI:[%.2f,%.2f]", res_coll$MI.Est, res_coll$CI.low, res_coll$CI.up),"\n")
+  cat(sprintf("ATE = %.2f | CI = [%.2f,%.2f]", res_coll$MI.Est, res_coll$CI.low, res_coll$CI.up),"\n")
   unlist(res_coll)
 }
 
@@ -65,3 +65,17 @@ learner_weights_summary_g <- function(ltmle_est, mean_tf = TRUE){
   mean_weights <- rowMeans(learner_weights)
   return(mean_weights)
 }
+
+no_fm <- NULL
+est_spec <- list("ScreenLearnSta_all" = list("d_set" = "all", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "ScreenLearnSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "ScreenLearnSta_low" = list("d_set" = "low", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "ScreenLearnDyn_all" = list("d_set" = "all", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "ScreenLearnDyn_high" = list("d_set" = "high", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "ScreenLearnDyn_low" = list("d_set" = "low", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
+                 "EconDAGSta_all" = list("d_set" = "all", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "EconDAGSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "EconDAGSta_low" = list("d_set" = "low", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "PlainDAGSta_all" = list("d_set" = "all", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "PlainDAGSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
+                 "PlainDAGDyn_low" = list("d_set" = "low", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"))
