@@ -66,6 +66,8 @@ learner_weights_summary_g <- function(ltmle_est, mean_tf = TRUE){
   return(mean_weights)
 }
 
+# Different estimation strategies/specifications which are iterated in EstimateData.R
+
 no_fm <- NULL
 est_spec <- list("ScreenLearnSta_all" = list("d_set" = "all", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
                  "ScreenLearnSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Data", "g_form" = no_fm, "Q_form" = no_fm),
@@ -76,6 +78,12 @@ est_spec <- list("ScreenLearnSta_all" = list("d_set" = "all", "treat" = "stat_in
                  "EconDAGSta_all" = list("d_set" = "all", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
                  "EconDAGSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
                  "EconDAGSta_low" = list("d_set" = "low", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
-                 "PlainDAGSta_all" = list("d_set" = "all", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "EconDAGDyn_all" = list("d_set" = "all", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "EconDAGDyn_high" = list("d_set" = "high", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "EconDAGDyn_low" = list("d_set" = "low", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_econ", "Q_form" = "Q_econ"),
+                 "PlainDAGSta_all" = list("d_set" = "all", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
                  "PlainDAGSta_high" = list("d_set" = "high", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
+                 "PlainDAGSta_low" = list("d_set" = "low", "treat" = "stat_intv_1", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
+                 "PlainDAGDyn_all" = list("d_set" = "all", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
+                 "PlainDAGDyn_high" = list("d_set" = "high", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"),
                  "PlainDAGDyn_low" = list("d_set" = "low", "treat" = "dyn_intv", "cntrl" = "stat_intv_0", "Sl_lib" = "SL.Est_Theory", "g_form" = "g_base", "Q_form" = "Q_base"))
