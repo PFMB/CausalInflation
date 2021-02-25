@@ -86,6 +86,9 @@ for (i in 1:5) {
   a.out[[i]]$log_infl <- log(a.out[[i]]$infl_imf_shift)
 }
 
+# for descriptive statistics
+saveRDS(a.out, file = "descript_infl.RDS")
+
 # drop variables that are not needed for now
 for (i in 1:5) {
   a.out[[i]]$infl_imf_shift <- NULL
@@ -104,7 +107,7 @@ h_igh <- droplevels(income_dist[income_dist$UM + income_dist$H >= 7,]$id)
 make_causal <- function(a_d){
   
   # from long to wide for LTMLE
-  a_d_c <- list(length = length(a_d))
+  a_d_c <- vector("list",length = length(a_d))
   for (i in 1:5){
     a_d_c[[i]] <- reshape(a_d[[i]],timevar = "year", idvar = "id", direction = "wide")
     a_d_c[[i]] <- a_d_c[[i]][,-1] # ltmle does not need id
