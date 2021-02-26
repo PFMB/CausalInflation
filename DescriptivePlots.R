@@ -1,9 +1,9 @@
 rm(list = ls())
-graphics.off()
-dev.off()
 library(data.table)
 library(ggplot2)
 library(ggsci) # colors
+library(metR)
+library(cowplot)
 
 ## Plot summary stats for the supplamentary material/appendix
 
@@ -51,3 +51,43 @@ p <- lapply(cat_var, function(ca) {
 
 (pp <- plot_grid(p[[1]],p[[2]], ncol = 2, align = "h"))
 ggsave("plots/DescrStackedBar.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+
+## kernel densities for p = 1/cc for last point in time of cumulative g-forms
+
+e <- readRDS("results/Estimations.RDS")
+e <- e[seq(1,18,3)] # discard high/low since all is the primary est goal
+
+cum_g <- lapply(e, function(est_str) {
+  A0 <- unname(1/unlist(lapply(est_str, function(imp) imp$cc$dist_cc_A0)))
+  A0[is.infinite(A0)] <- 0
+  A1 <- unname(1/unlist(lapply(est_str, function(imp) imp$cc$dist_cc_A1)))
+  A1[is.infinite(A1)] <- 0
+  list(A0 = A0, A1 = A1)
+})
+
+p1 <- melt(setDT(lapply(cum_g, `[[`, "A0")))
+setnames(p1,c("variable","value"),c("Est. Strategy","value"))
+lbl <- c(expression(paste("ScreenLearn ",hat(psi)['1,3'])),
+         expression(paste("ScreenLearn ",hat(psi)['2,3'])),
+         expression(paste("EconDAG ",hat(psi)['1,3'])),
+         expression(paste("EconDAG ",hat(psi)['2,3'])),
+         expression(paste("PlainDAG ",hat(psi)['1,3'])),
+         expression(paste("PlainDAG ",hat(psi)['2,3'])))
+
+(p11 <- ggplot(p1,aes(x = value, fill = `Est. Strategy`)) + geom_density(alpha = 0.7) + scale_fill_jco() +
+    theme_minimal() + labs(y = "", x = "Cum. probabilities") + 
+    scale_x_continuous(expand = c(0,0), limits = c(0,1), labels = scales::percent) +
+    scale_y_continuous(expand = c(0,0), limits = c(0,2.5)) + 
+    scale_fill_discrete(labels = lbl) + theme(legend.position="top", legend.title = element_blank()))
+
+p2 <- melt(setDT(lapply(cum_g, `[[`, "A1")))
+setnames(p2,c("variable","value"),c("Est. Strategy","value"))
+
+(p22 <- ggplot(p2,aes(x = value, fill = `Est. Strategy`)) + geom_density(alpha = 0.7) + scale_fill_jco() +
+    theme_minimal() + labs(y = "", x = "Cum. probabilities") + 
+    scale_x_continuous(expand = c(0,0), limits = c(0,1), labels = scales::percent) +
+    scale_y_continuous(expand = c(0,0), limits = c(0,2.5)) + 
+    scale_fill_discrete(labels = lbl) + theme(legend.position="top", legend.title = element_blank()))
+
+(pp <- plot_grid(p11,p22, ncol = 2, align = "h"))
+ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 15, dpi = 150)
