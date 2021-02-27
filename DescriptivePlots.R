@@ -78,11 +78,11 @@ lbl <- c(expression(paste("ScreenLearn ",hat(psi)['1,3'])),
          expression(paste("PlainDAG ",hat(psi)['2,3'])))
 
 # imidiate plotting via `(p11 <- ggplot())` causes error "polygon edge not found"
-p11 <- ggplot(p1,aes(x = value, fill = `Est. Strategy`)) + geom_density(alpha = 0.7) + scale_fill_jco() +
+p11 <- ggplot(p1,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha = 0.4) + scale_fill_jco() +
     theme_minimal() + labs(y = "", x = "Cum. probabilities") + 
     scale_x_continuous(expand = c(0,0), limits = c(0,1), labels = scales::percent) +
     scale_y_continuous(expand = c(0,0), limits = c(0,15)) + 
-    scale_fill_discrete(labels = lbl) + 
+    scale_color_discrete(labels = lbl) + 
     theme(legend.position="top", legend.title = element_blank(), plot.margin=unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 p2 <- melt(setDT(lapply(cum_g, `[[`, "A1")))
@@ -91,11 +91,11 @@ p2[,.N, by = `Est. Strategy`]
 p2 <- p2[!is.na(value),]
 p2[,.N, by = `Est. Strategy`]
 
-p22 <- ggplot(p2,aes(x = value, fill = `Est. Strategy`)) + geom_density(alpha = 0.7) + scale_fill_jco() +
+p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha = 0.4) + scale_fill_jco() +
     theme_minimal() + labs(y = "", x = "Cum. probabilities") + 
     scale_x_continuous(expand = c(0,0), limits = c(0,1), labels = scales::percent) +
     scale_y_continuous(expand = c(0,0), limits = c(0,15)) + 
-    scale_fill_discrete(labels = lbl) + 
+    scale_color_discrete(labels = lbl) + 
     theme(legend.position="top", legend.title = element_blank(), plot.margin=unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
