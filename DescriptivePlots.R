@@ -1,5 +1,6 @@
 rm(list = ls())
 library(data.table)
+library(RColorBrewer)
 library(ggplot2)
 library(ggsci) # colors
 library(metR)
@@ -107,20 +108,32 @@ pp <- plot_grid(p11,p22, ncol = 2, align = "h")
 d <- setDT(d)
 d_CBI <- d[, .(id,Year,CBIndependence)]
 d_CBI[ , Year := as.Date(paste0(Year, '-01-01'))]
-d_CBI$RawCBIndependence <- raw_cbi
+d_CBI$`CBIndependence (non-binary)` <- raw_cbi
 
-(p33 <- ggplot(d_CBI, aes(x = Year, y = RawCBIndependence, color = id)) + 
+# most diverged color palette
+qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector <- sample(col_vector, 59)
+
+(p33 <- ggplot(d_CBI, aes(x = Year, y = `CBIndependence (non-binary)`, color = id)) + 
     geom_line() +
-    scale_x_date(expand = c(0,0)) + scale_fill_jco() + theme_minimal() +
+    scale_x_date(expand = c(0,0)) +# scale_fill_jco()
+    theme_minimal() +
+    scale_colour_manual(values = col_vector) +
     theme(legend.position = "none", plot.margin = unit(c(0.3,0.6,0.1,0.1),"cm")) +
     scale_y_continuous(expand = c(0,0), limits = c(0,1)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
 
 # 9 countries switched regimes (all switched from 0 to 1) between 1998-2010
 sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
 
+# do you really need to compare/follow the lines between p33 and p44?
+# otherwise you can use this palette for p44 instead making it easier to follow the switches
+#col_vector <- colorRampPalette(c("blue","royalblue"))(59)
+
 (p44 <- ggplot(d_CBI, aes(x = Year, y = CBIndependence, color = id)) + 
   geom_line(position = position_jitter(width = 100, height = 0.005)) +
-  scale_x_date(expand = c(0,0)) + scale_fill_jco() + theme_minimal() +
+  scale_x_date(expand = c(0,0)) + theme_minimal() +
+  scale_colour_manual(values = col_vector) +# scale_fill_jco()
   theme(legend.position = "none", plot.margin = unit(c(0.3,0.6,0.1,0.1),"cm")) +
   scale_y_continuous(expand = c(0,0)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
 
