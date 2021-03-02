@@ -111,9 +111,9 @@ d_CBI[ , Year := as.Date(paste0(Year, '-01-01'))]
 d_CBI$`CBIndependence (non-binary)` <- raw_cbi
 
 # most diverged color palette
-qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
-col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-col_vector <- sample(col_vector, 59)
+#qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+#col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector <- rainbow(59)
 
 (p33 <- ggplot(d_CBI, aes(x = Year, y = `CBIndependence (non-binary)`, color = id)) + 
     geom_line() +
@@ -140,4 +140,45 @@ sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
 pp <- plot_grid(p33,p44, ncol = 2, align = "h")
 
 ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+
+### ATE results for all levels and strategies
+
+plot_ATE <- function(res) {
+  
+  res <- data.frame(t(res[c(1,3,4),]))
+  
+  strat <- c("ScreenLearn","EconDAG","PlainDAG")
+  res$Strategy <- factor(rep(strat, each = 2), levels = strat) # ensures x-axis ordering 
+  res$Regime <- rep(c("Static", "Dynamic"), 3)
+  res$Regime <- factor(res$Regime, levels = c("Static","Dynamic"),
+                                   labels = c(expression(hat(psi)[paste(1, ",", 3)]),
+                                              expression(hat(psi)[paste(2, ",", 3)])))
+  
+  res$text_ATE <- gettextf("%0.2f",res$MI.Est)
+  res$text_LCI <- gettextf("%0.2f",res$CI.low)
+  res$text_UCI <- gettextf("%0.2f",res$CI.up)
+  
+  ggplot(res, aes(x = Strategy, y = MI.Est, ymin = CI.low, ymax = CI.up)) + 
+    geom_point(aes(color = Strategy)) +
+    geom_errorbar(aes(color = Strategy, width = 0.1)) + theme_light() + 
+    geom_hline(aes(yintercept = 0), linetype = "dashed", alpha = 0.3,show.legend=FALSE) +
+    facet_grid(. ~ Regime, labeller = label_parsed) +
+    theme(legend.position = "none", text = element_text(size = 8), # strip.text.x is for the facet_grid
+          strip.text.x = element_text(size = 10)) + 
+    ylab("ATE (with 95%-CI)") + xlab("Estimation Strategy")  +
+    geom_label(data=res, aes(label = text_ATE, group = Strategy, y = MI.Est, hjust = -0.5), label.size = 0, size = 2) +
+    geom_label(data=res, aes(label = text_LCI, group = Strategy, y = CI.low, hjust = -0.5), label.size = 0, size = 2) +
+    geom_label(data=res, aes(label = text_UCI, group = Strategy, y = CI.up, hjust = -0.5), label.size = 0, size = 2)
+  
+}
+
+d <- readRDS("results/ATEs.RDS")
+
+(all <- plot_ATE(d[,seq(1,18,3)]))
+(high <- plot_ATE(d[,seq(2,18,3)]))
+(low <- plot_ATE(d[,seq(3,18,3)]))
+
+ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
+ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
+ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
 
