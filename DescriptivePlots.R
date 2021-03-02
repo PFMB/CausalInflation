@@ -14,6 +14,7 @@ colMeans(d[sapply(d, is.numeric)])
 
 d$log_infl <- NULL
 d$infl_imf_shift <- NULL
+raw_cbi <- d$cbi
 d$cbi <- NULL
 names(d)[2] <- "Year"
 
@@ -35,7 +36,7 @@ d_num[,log_value := if(all(value > 10)) log(value) else value, by = variable]
   geom_boxplot(outlier.size = 0.8) + 
   facet_wrap(. ~ variable, scales = "free") +
   theme_bw() + ylab("") + theme(text = element_text(size = 12)))
-ggsave("plots/DescrBoxPlot.pdf", plot = p, width = 15, height = 15, dpi = 150)
+#ggsave("plots/DescrBoxPlot.pdf", plot = p, width = 15, height = 15, dpi = 150)
 
 ## you might want to add more variables to cat_var (e.g. CBTransparency)
 
@@ -50,7 +51,7 @@ p <- lapply(cat_var, function(ca) {
 })
 
 (pp <- plot_grid(p[[1]],p[[2]], ncol = 2, align = "h"))
-ggsave("plots/DescrStackedBar.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+#ggsave("plots/DescrStackedBar.pdf", plot = pp, width = 15, height = 15, dpi = 150)
 
 ## kernel densities for p = 1/cc for last point in time of cumulative g-forms
 
@@ -99,4 +100,31 @@ p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha =
     theme(legend.position="top", legend.title = element_blank(), plot.margin=unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
-ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+#ggsave("plots/Cum_g_null_learner.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+
+### Descriptive CBI: Switching regimes
+
+d <- setDT(d)
+d_CBI <- d[, .(id,Year,CBIndependence)]
+d_CBI[ , Year := as.Date(paste0(Year, '-01-01'))]
+d_CBI$RawCBIndependence <- raw_cbi
+
+(p33 <- ggplot(d_CBI, aes(x = Year, y = RawCBIndependence, color = id)) + 
+    geom_line() +
+    scale_x_date(expand = c(0,0)) + scale_fill_jco() + theme_minimal() +
+    theme(legend.position = "none", plot.margin = unit(c(0.3,0.6,0.1,0.1),"cm")) +
+    scale_y_continuous(expand = c(0,0), limits = c(0,1)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
+
+# 9 countries switched regimes (all switched from 0 to 1) between 1998-2010
+sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
+
+(p44 <- ggplot(d_CBI, aes(x = Year, y = CBIndependence, color = id)) + 
+  geom_line(position = position_jitter(width = 100, height = 0.005)) +
+  scale_x_date(expand = c(0,0)) + scale_fill_jco() + theme_minimal() +
+  theme(legend.position = "none", plot.margin = unit(c(0.3,0.6,0.1,0.1),"cm")) +
+  scale_y_continuous(expand = c(0,0)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
+
+pp <- plot_grid(p33,p44, ncol = 2, align = "h")
+
+ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+
