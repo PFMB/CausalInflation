@@ -77,12 +77,12 @@ setnames(p1,c("variable","value"),c("Est. Strategy","value"))
 p1[,.N, by = `Est. Strategy`]
 p1 <- p1[!is.na(value),]
 p1[,.N, by = `Est. Strategy`]
-lbl <- c(expression(paste("ScreenLearn ",hat(psi)['1,3'])),
-         expression(paste("ScreenLearn ",hat(psi)['2,3'])),
-         expression(paste("EconDAG ",hat(psi)['1,3'])),
-         expression(paste("EconDAG ",hat(psi)['2,3'])),
-         expression(paste("PlainDAG ",hat(psi)['1,3'])),
-         expression(paste("PlainDAG ",hat(psi)['2,3'])))
+lbl <- c(expression(paste("ScreenLearn ",bar(d)^3," from ", hat(psi)['1,3'])),
+         expression(paste("ScreenLearn ",bar(d)^3," from ", hat(psi)['2,3'])),
+         expression(paste("EconDAG ",bar(d)^3," from ", hat(psi)['1,3'])),
+         expression(paste("EconDAG ",bar(d)^3," from ", hat(psi)['2,3'])),
+         expression(paste("PlainDAG ",bar(d)^3," from ", hat(psi)['1,3'])),
+         expression(paste("PlainDAG ",bar(d)^3," from ", hat(psi)['2,3'])))
 
 # imidiate plotting via `(p11 <- ggplot())` causes error "polygon edge not found"
 p11 <- ggplot(p1,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha = 0.4) + scale_fill_jco() +
@@ -97,13 +97,19 @@ setnames(p2,c("variable","value"),c("Est. Strategy","value"))
 p2[,.N, by = `Est. Strategy`]
 p2 <- p2[!is.na(value),]
 p2[,.N, by = `Est. Strategy`]
+lbl <- c(expression(paste("ScreenLearn ",bar(d)^1," from ", hat(psi)['1,3'])),
+         expression(paste("ScreenLearn ",bar(d)^2," from ", hat(psi)['2,3'])),
+         expression(paste("EconDAG ",bar(d)^1," from ", hat(psi)['1,3'])),
+         expression(paste("EconDAG ",bar(d)^2," from ", hat(psi)['2,3'])),
+         expression(paste("PlainDAG ",bar(d)^1," from ", hat(psi)['1,3'])),
+         expression(paste("PlainDAG ",bar(d)^2," from ", hat(psi)['2,3'])))
 
 p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha = 0.4) + scale_fill_jco() +
     theme_minimal() + labs(y = "", x = "Cum. probabilities") + 
     scale_x_continuous(expand = c(0,0), limits = c(0,1), labels = scales::percent) +
     scale_y_continuous(expand = c(0,0), limits = c(0,15)) + 
     scale_color_discrete(labels = lbl) + 
-    theme(legend.position="top", legend.title = element_blank(), plot.margin=unit(c(0.1,0.6,0.1,0.1),"cm"))
+    theme(legend.position = "top", legend.title = element_blank(), plot.margin = unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
 ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
