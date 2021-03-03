@@ -14,7 +14,7 @@ path <- "/cluster/home/phibauma/CausalInflation/"
 n_cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
-load(paste0(path,"causalinfl_revised.RData"))
+load(paste0(path,"causalinfl.RData"))
 all <- infl$all # needed so that get() works with characters/strings in the estimation environment
 high <- infl$high
 low <- infl$low
@@ -79,8 +79,8 @@ est <- function(d_s, Q_fm, g_fm, treat, cntrl, SL_lib) {
   si_ze <- format(object.size(res), units = "auto")
   
   # extract learner weights from estimation
-  Q_mean <- try(learner_weights_summary_Q(res), silent = TRUE)
-  g_mean <- try(learner_weights_summary_g(res), silent = TRUE)
+  Q_mean <- try(learner_weights_summary_Q(res, mean_tf = FALSE), silent = TRUE)
+  g_mean <- try(learner_weights_summary_g(res, mean_tf = FALSE), silent = TRUE)
   learn_weights <- list(Qweights = Q_mean, gweights = g_mean)
   
   # extract ATEs from estimation

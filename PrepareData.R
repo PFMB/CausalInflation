@@ -102,7 +102,6 @@ d <- d[d$year %in% c(1998:2010) & d$id %in% countries,]
 income_dist <- ddply(d, .(id), function(x) table(x$class_wb))
 l_ow <- droplevels(income_dist[income_dist$L + income_dist$LM >= 7,]$id)
 h_igh <- droplevels(income_dist[income_dist$UM + income_dist$H >= 7,]$id)
-#saveRDS(list("high" = droplevels(h_igh), "low" = droplevels(l_ow)), file = "WorldBankClass.RDS")
 
 make_causal <- function(a_d){
   
@@ -147,5 +146,5 @@ high_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% h_igh,]))
 low_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% l_ow,]))
 
 infl <- list("all" = all_countries, "high" = high_countries, "low" = low_countries)
-save(infl, file = "causalinfl_revised.RData")
+save(infl, file = "causalinfl.RData")
 
