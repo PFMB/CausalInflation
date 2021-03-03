@@ -210,66 +210,54 @@ xtable(low)
 
 ### Super learner weights
 
-learner_dist_summary_plot <- function(weights_dist_Q, weights_dist_g){
-  
-  nms <- rownames(weights_dist_Q)
-  no_of_Q_learner <- length(nms)
-  weights_p <- melt(weights_dist_Q)
-  good_Q_learner <- nms[rowMeans(weights_dist_Q)>=0.01] # good learners
-  weights_p <- weights_p[,c(1,3)]
-  
-  # rearrange data.frame for plotting with geom_pointrange in ggplot
-  names(weights_p) <- c("Learner","Weight")
-  weights_p <- weights_p %>% group_by(Learner) %>% summarise(min = min(Weight), max = max(Weight),mean = mean(Weight))
-  p1 <- ggplot(weights_p, aes(x = Learner, y = mean, ymin = min, ymax = max, colour = cut(mean, c(-Inf, 0.01, 1)))) + 
-    geom_linerange() + 
-    geom_pointrange() + 
-    scale_color_manual(name = "Mean Weight",
-                       values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), 
-                       labels = c("[0,0.01)", "[0.01,1]"), guide = FALSE) +
-    ggtitle("") + theme_light() + theme(axis.text.x=element_blank(),
-                                        plot.title = element_text(hjust = 0.5), axis.text.y = element_text(size = 6),
-                                        plot.margin = unit(c(-0.5,0.1,-0.52,0.1), "cm"), axis.title.y = element_text(size = 10))  +
-    ylab("Q-Weights") + scale_y_continuous(limits = c(0, 1),breaks = seq(0,1,0.1)) + xlab("")
-  
-  nms <- rownames(weights_dist_g)
-  no_of_g_learner <- length(nms)
-  weights_p <- melt(weights_dist_g)
-  good_g_learner <- nms[rowMeans(weights_dist_g) >= 0.01] # good learners
-  weights_p <- weights_p[,c(1,3)]
-  
-  # rearrange data.frame for plotting with geom_pointrange in ggplot
-  names(weights_p) <- c("Learner","Weight")
-  weights_p <- weights_p %>% group_by(Learner) %>% 
-    summarise(min = min(Weight), 
-              max = max(Weight),
-              mean = mean(Weight))
-  p2 <- ggplot(weights_p, aes(x = Learner, y = mean, ymin = min, ymax = max, colour = cut(mean, c(-Inf, 0.01, 1)))) + 
-    geom_linerange() + 
-    geom_pointrange() + 
-    scale_color_manual(name="Mean Weight",values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), labels = c("[0,0.01]", "(0.01,1]"), guide=FALSE) +
-    ylab("g-Weights") + xlab("") +
-    ggtitle("") + theme_light() + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67.5 angle
-                                        axis.text.x = element_text(size=4,angle=56.25,hjust=1,vjust=1,face="bold"), axis.text.y = element_text(size = 6),
-                                        plot.margin = unit(c(-0.52,0.1,-0.5,0.1), "cm"), axis.title.y = element_text(size = 10))  +
-    scale_y_continuous(limits = c(0, 1),breaks = seq(0,1,0.1)) 
-  
-  grid.newpage()
-  grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "last"))
-}
-
 d <- readRDS("results/Estimations.RDS")
 
+# screen learner only since the most learner used
 SL_stat <- d$ScreenLearnSta_all
 SL_dynm <- d$ScreenLearnDyn_all
 
+# Q weights
 stat_Q <- sapply(SL_stat, function(imp) imp$weights_out$Qweights)
 dynm_Q <- sapply(SL_dynm, function(imp) imp$weights_out$Qweights)
 Q_w <- cbind(stat_Q, dynm_Q)
 
+# g weights
 stat_g <- sapply(SL_stat, function(imp) imp$weights_out$gweights)
 dynm_g <- sapply(SL_dynm, function(imp) imp$weights_out$gweights)
 g_w <- cbind(stat_g, dynm_g)
 
-p <- learner_dist_summary_plot(Q_w,g_w)
-ggsave("plots/SL_weights.pdf", plot = p, width = 15, height = 5, dpi = 150)
+plot_w <- function(w) {
+  nms <- rownames(w)
+  w <- reshape2::melt(w) # namespace conflict with data.table
+  w <- w[,c(1,3)]
+  names(w) <- c("Learner","Weight")
+  w <- w %>% group_by(Learner) %>% summarise(min = min(Weight), 
+                                             max = max(Weight),
+                                             mean = mean(Weight))
+  ggplot(w, aes(x = Learner, y = mean, ymin = min, ymax = max, 
+                colour = cut(mean, c(-Inf, 0.01, 1)))) + 
+    geom_linerange() + geom_pointrange() + 
+    scale_color_manual(name = "Mean Weight",
+                       values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), 
+                       labels = c("[0,0.01)", "[0.01,1]"), guide = FALSE) +
+    ggtitle("") + theme_light() + 
+    scale_y_continuous(limits = c(0, 1), breaks = seq(0,1,0.1)) + xlab("")
+}
+
+Q_p <- plot_w(Q_w) + theme(axis.text.x = element_blank(),
+                           plot.title = element_text(hjust = 0.5), 
+                           axis.text.y = element_text(size = 6),
+                           plot.margin = unit(c(-0.5,0.1,-0.52,0.1), "cm"), 
+                           axis.title.y = element_text(size = 10))  +
+                           ylab("Q-Weights")
+
+g_p <- plot_w(g_w) + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67.5 angle
+                           axis.text.x = element_text(size = 4, angle = 56.25, hjust = 1, vjust = 1,face = "bold"), 
+                           axis.text.y = element_text(size = 6),
+                           plot.margin = unit(c(-0.52,0.1,-0.5,0.1), "cm"), 
+                           axis.title.y = element_text(size = 10)) +
+                           ylab("g-Weights")
+
+# save by hand 7 x 16 inch under "plots/SL_weights.pdf"
+# the higher the inch per dim, the smaller the objects appear later on, however, keep ratio
+grid.draw(rbind(ggplotGrob(Q_p), ggplotGrob(g_p), size = "last"))
