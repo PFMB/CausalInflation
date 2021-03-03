@@ -5,6 +5,7 @@ library(ggplot2)
 library(ggsci) # colors
 library(metR)
 library(cowplot)
+library(xtable)
 
 ## Plot summary stats for the supplamentary material/appendix
 
@@ -182,3 +183,22 @@ ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
 ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
 ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
 
+### CC summmary stats (table 1)
+
+d <- readRDS("results/Estimations.RDS")
+sel_row <- c("TruncShare","Mean","Max.")
+
+cc_stats <- function(est_str) {
+  A0 <- sapply(est_str, function(imp) imp$cc$cc_trunc_matrix[sel_row,"Control"])
+  A1 <- sapply(est_str, function(imp) imp$cc$cc_trunc_matrix[sel_row,"Treatment"])
+  r <- cbind(rowMeans(A0),rowMeans(A1))
+  rbind(r, c(max(A0["Mean",]),max(A1["Mean",])), c(min(A0["Mean",]),min(A1["Mean",])))
+}
+
+all <- do.call("cbind",lapply(d[seq(1,18,3)], cc_stats))
+high <- do.call("cbind",lapply(d[seq(2,18,3)], cc_stats))
+low <- do.call("cbind",lapply(d[seq(3,18,3)], cc_stats))
+
+xtable(all)
+xtable(high)
+xtable(low)
