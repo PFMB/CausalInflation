@@ -6,6 +6,10 @@ library(ggsci) # colors
 library(metR)
 library(cowplot)
 library(xtable)
+library(gridExtra) # arranges plots
+library(reshape2) # rearrange data for ggplot
+library(dplyr) # mutate and group by
+library(grid) # grid.newpage grid.draw 
 
 ## Plot summary stats for the supplamentary material/appendix
 
@@ -102,7 +106,7 @@ p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha =
     theme(legend.position="top", legend.title = element_blank(), plot.margin=unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
-#ggsave("plots/Cum_g_null_learner.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### Descriptive CBI: Switching regimes
 
@@ -112,9 +116,10 @@ d_CBI[ , Year := as.Date(paste0(Year, '-01-01'))]
 d_CBI$`CBIndependence (non-binary)` <- raw_cbi
 
 # most diverged color palette
-#qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
-#col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-col_vector <- rainbow(59)
+qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+col_vector <- unique(col_vector)[1:59]
+#col_vector <- rainbow(59)
 
 (p33 <- ggplot(d_CBI, aes(x = Year, y = `CBIndependence (non-binary)`, color = id)) + 
     geom_line() +
@@ -140,7 +145,7 @@ sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
 
 pp <- plot_grid(p33,p44, ncol = 2, align = "h")
 
-ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### ATE results for all levels and strategies
 
@@ -202,3 +207,69 @@ low <- do.call("cbind",lapply(d[seq(3,18,3)], cc_stats))
 xtable(all)
 xtable(high)
 xtable(low)
+
+### Super learner weights
+
+learner_dist_summary_plot <- function(weights_dist_Q, weights_dist_g){
+  
+  nms <- rownames(weights_dist_Q)
+  no_of_Q_learner <- length(nms)
+  weights_p <- melt(weights_dist_Q)
+  good_Q_learner <- nms[rowMeans(weights_dist_Q)>=0.01] # good learners
+  weights_p <- weights_p[,c(1,3)]
+  
+  # rearrange data.frame for plotting with geom_pointrange in ggplot
+  names(weights_p) <- c("Learner","Weight")
+  weights_p <- weights_p %>% group_by(Learner) %>% summarise(min = min(Weight), max = max(Weight),mean = mean(Weight))
+  p1 <- ggplot(weights_p, aes(x = Learner, y = mean, ymin = min, ymax = max, colour = cut(mean, c(-Inf, 0.01, 1)))) + 
+    geom_linerange() + 
+    geom_pointrange() + 
+    scale_color_manual(name = "Mean Weight",
+                       values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), 
+                       labels = c("[0,0.01)", "[0.01,1]"), guide = FALSE) +
+    ggtitle("") + theme_light() + theme(axis.text.x=element_blank(),
+                                        plot.title = element_text(hjust = 0.5), axis.text.y = element_text(size = 6),
+                                        plot.margin = unit(c(-0.5,0.1,-0.52,0.1), "cm"), axis.title.y = element_text(size = 10))  +
+    ylab("Q-Weights") + scale_y_continuous(limits = c(0, 1),breaks = seq(0,1,0.1)) + xlab("")
+  
+  nms <- rownames(weights_dist_g)
+  no_of_g_learner <- length(nms)
+  weights_p <- melt(weights_dist_g)
+  good_g_learner <- nms[rowMeans(weights_dist_g) >= 0.01] # good learners
+  weights_p <- weights_p[,c(1,3)]
+  
+  # rearrange data.frame for plotting with geom_pointrange in ggplot
+  names(weights_p) <- c("Learner","Weight")
+  weights_p <- weights_p %>% group_by(Learner) %>% 
+    summarise(min = min(Weight), 
+              max = max(Weight),
+              mean = mean(Weight))
+  p2 <- ggplot(weights_p, aes(x = Learner, y = mean, ymin = min, ymax = max, colour = cut(mean, c(-Inf, 0.01, 1)))) + 
+    geom_linerange() + 
+    geom_pointrange() + 
+    scale_color_manual(name="Mean Weight",values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), labels = c("[0,0.01]", "(0.01,1]"), guide=FALSE) +
+    ylab("g-Weights") + xlab("") +
+    ggtitle("") + theme_light() + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67.5 angle
+                                        axis.text.x = element_text(size=4,angle=56.25,hjust=1,vjust=1,face="bold"), axis.text.y = element_text(size = 6),
+                                        plot.margin = unit(c(-0.52,0.1,-0.5,0.1), "cm"), axis.title.y = element_text(size = 10))  +
+    scale_y_continuous(limits = c(0, 1),breaks = seq(0,1,0.1)) 
+  
+  grid.newpage()
+  grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "last"))
+}
+
+d <- readRDS("results/Estimations.RDS")
+
+SL_stat <- d$ScreenLearnSta_all
+SL_dynm <- d$ScreenLearnDyn_all
+
+stat_Q <- sapply(SL_stat, function(imp) imp$weights_out$Qweights)
+dynm_Q <- sapply(SL_dynm, function(imp) imp$weights_out$Qweights)
+Q_w <- cbind(stat_Q, dynm_Q)
+
+stat_g <- sapply(SL_stat, function(imp) imp$weights_out$gweights)
+dynm_g <- sapply(SL_dynm, function(imp) imp$weights_out$gweights)
+g_w <- cbind(stat_g, dynm_g)
+
+p <- learner_dist_summary_plot(Q_w,g_w)
+ggsave("plots/SL_weights.pdf", plot = p, width = 15, height = 5, dpi = 150)
