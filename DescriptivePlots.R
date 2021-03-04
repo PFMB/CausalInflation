@@ -225,22 +225,20 @@ SL_dynm <- d$ScreenLearnDyn_all
 # Q weights
 stat_Q <- sapply(SL_stat, function(imp) imp$weights_out$Qweights)
 dynm_Q <- sapply(SL_dynm, function(imp) imp$weights_out$Qweights)
-Q_w <- cbind(stat_Q, dynm_Q)
+Q_w <- cbind(do.call("cbind",stat_Q), do.call("cbind",dynm_Q))
 
 # g weights
-stat_g <- sapply(SL_stat, function(imp) imp$weights_out$gweights)
-dynm_g <- sapply(SL_dynm, function(imp) imp$weights_out$gweights)
-g_w <- cbind(stat_g, dynm_g)
+stat_g <- lapply(SL_stat, function(imp) imp$weights_out$gweights)
+dynm_g <- lapply(SL_dynm, function(imp) imp$weights_out$gweights)
+g_w <- cbind(do.call("cbind",dynm_g), do.call("cbind",stat_g))
 
-plot_w <- function(w) {
-  nms <- rownames(w)
-  w <- reshape2::melt(w) # namespace conflict with data.table
-  w <- w[,c(1,3)]
-  names(w) <- c("Learner","Weight")
-  w <- w %>% group_by(Learner) %>% summarise(min = min(Weight), 
-                                             max = max(Weight),
-                                             mean = mean(Weight))
-  ggplot(w, aes(x = Learner, y = mean, ymin = min, ymax = max, 
+plot_w <- function(wg) {
+  wg <- reshape2::melt(wg) # namespace conflict with data.table
+  wg <- wg[,c(1,3)]
+  names(wg) <- c("Learner","Weight")
+  wg <- setDT(wg)
+  wg[,`:=`(max = max(Weight), mean = mean(Weight), min = min(Weight)),by = Learner]
+  ggplot(wg, aes(x = Learner, y = mean, ymin = min, ymax = max, 
                 colour = cut(mean, c(-Inf, 0.01, 1)))) + 
     geom_linerange() + geom_pointrange() + 
     scale_color_manual(name = "Mean Weight",
@@ -260,7 +258,7 @@ Q_p <- plot_w(Q_w) + theme(axis.text.x = element_blank(),
 g_p <- plot_w(g_w) + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67.5 angle
                            axis.text.x = element_text(size = 4, angle = 56.25, hjust = 1, vjust = 1,face = "bold"), 
                            axis.text.y = element_text(size = 6),
-                           plot.margin = unit(c(-0.52,0.1,-0.5,0.1), "cm"), 
+                           plot.margin = unit(c(-0.52,0.1,-0.4,0.1), "cm"), 
                            axis.title.y = element_text(size = 10)) +
                            ylab("g-Weights")
 
