@@ -28,4 +28,4 @@ The repository cotains the following files:
 
 * `DescriptivePlots.R` reproduces the plots and tables presented in the main text and the appendix of the paper.
 
-The file `EstimateData.R` was run with `bsub -n 5 -W 24:00 -N -B -R "rusage[mem=16384]" 'R --vanilla --slave` < $HOME/CausalInflation/EstimateData.R > causal_log_2'`. The
+The file `EstimateData.R` was run with `bsub -n 5 -W 24:00 -N -B -R "rusage[mem=16384]" 'R --vanilla --slave` `< $HOME/CausalInflation/EstimateData.R > causal_log_2'`.
