@@ -6,7 +6,6 @@
 # load in memory and attach to serachpath
 rm(list = ls())
 library(parallel)
-set.seed(1)
 path <- "/cluster/home/phibauma/CausalInflation/"
 #path <- "/Users/flipst3r/RStHomeDir/GitHub/CausalInflation/"
 
@@ -42,7 +41,8 @@ Q_base <- ltmle_prep$form_base$Q_base
 
 # initiate cluster
 cl <- makeCluster(n_cluster, outfile = "")
-clusterSetRNGStream(cl = cl, iseed = 1)
+# switch to future.apply::future_lapply(...,future.seed = TRUE) for future version
+#clusterSetRNGStream(cl = cl, iseed = 1) 
 clusterEvalQ(cl, library(ltmle))
 
 source(paste0(path,"LearnerLibrary.R"))
@@ -57,6 +57,7 @@ est <- function(d_s, Q_fm, g_fm, treat, cntrl, SL_lib) {
   
   # workhorse for all ltmle estimations
   
+  set.seed(1)
   seed <- .Random.seed
   source(paste0(path,"LearnerLibrary.R")) # for all manual learners
   

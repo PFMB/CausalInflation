@@ -8,7 +8,6 @@ library(cowplot)
 library(xtable)
 library(gridExtra) # arranges plots
 library(reshape2) # rearrange data for ggplot
-library(dplyr) # mutate and group by
 library(grid) # grid.newpage grid.draw 
 
 ## Plot summary stats for the supplamentary material/appendix
@@ -38,10 +37,10 @@ d_num <- setDT(r_shp(d[!colnames(d) %in% cat_var]))
 d_num[,log_value := if(all(value > 10)) log(value) else value, by = variable]
 #d_num[,is_bigger := if(all(value > 10)) TRUE else FALSE, by = variable]
 
-(p <- ggplot(d_num, aes(x = Year, y = log_value, group = Year)) + 
+p <- ggplot(d_num, aes(x = Year, y = log_value, group = Year)) + 
   geom_boxplot(outlier.size = 0.8) + 
   facet_wrap(. ~ variable, scales = "free") +
-  theme_bw() + ylab("") + theme(text = element_text(size = 12)))
+  theme_bw() + ylab("") + theme(text = element_text(size = 12))
 #ggsave("plots/DescrBoxPlot.pdf", plot = p, width = 15, height = 15, dpi = 150)
 
 ## you might want to add more variables to cat_var (e.g. CBTransparency)
@@ -56,7 +55,7 @@ p <- lapply(cat_var, function(ca) {
     scale_x_date(expand = c(0,0))# + facet_wrap(. ~ variable, scales = "free") does not work owing to too many levels
 })
 
-(pp <- plot_grid(p[[1]],p[[2]], ncol = 2, align = "h"))
+pp <- plot_grid(p[[1]],p[[2]], ncol = 2, align = "h")
 #ggsave("plots/DescrStackedBar.pdf", plot = pp, width = 15, height = 15, dpi = 150)
 
 ## kernel densities for p = 1/cc for last point in time of cumulative g-forms
@@ -112,7 +111,7 @@ p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha =
     theme(legend.position = "top", legend.title = element_blank(), plot.margin = unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
-ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+#ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### Descriptive CBI: Switching regimes
 
@@ -151,7 +150,7 @@ sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
 
 pp <- plot_grid(p33,p44, ncol = 2, align = "h")
 
-ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+#ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### ATE results for all levels and strategies
 
@@ -190,9 +189,9 @@ d <- readRDS("results/ATEs.RDS")
 (high <- plot_ATE(d[,seq(2,18,3)]))
 (low <- plot_ATE(d[,seq(3,18,3)]))
 
-ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
-ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
-ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
+#ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
+#ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
+#ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
 
 ### CC summmary stats (table 1)
 
