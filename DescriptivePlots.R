@@ -17,6 +17,7 @@ d <- readRDS("descript_infl.RDS")[[1]]
 sapply(d, typeof)
 colMeans(d[sapply(d, is.numeric)])
 
+# not needed here
 d$log_infl <- NULL
 d$infl_imf_shift <- NULL
 raw_cbi <- d$cbi
@@ -33,13 +34,14 @@ cat_var <- c("PolInstitution","CBIndependence")
 d_num <- setDT(r_shp(d[!colnames(d) %in% cat_var]))
 
 ## numeric variables might need a log trafo to be on a proper scale for interpretation
+# c("Output", "TradeOpenness", "GDPpc", "EnergyPrices", "ForeignOutput")
 
-d_num[,log_value := if(all(value > 10)) log(value) else value, by = variable]
+d_num[,log_value := if (all(value > 10)) log(value) else value, by = variable]
 
 p1 <- ggplot(d_num, aes(x = Year, y = log_value, group = Year)) + 
   geom_boxplot(outlier.size = 0.8) + 
   facet_wrap(. ~ variable, scales = "free") +
-  theme_bw() + ylab("") + theme(text = element_text(size = 12))
+  theme_bw() + ylab("") + theme(text = element_text(size = 13))
 
 ## you might want to add more variables to cat_var (e.g. CBTransparency)
 cols <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f')
@@ -50,13 +52,15 @@ p <- lapply(cat_var, function(ca) {
   d_cat[ ,Year := as.Date(paste0(Year, '-01-01'))]
   ggplot(d_cat, aes(x = Year, fill = value)) + scale_fill_manual(values = cols) +
     geom_bar(position = "fill") + theme_minimal() + labs(y = "", fill = ca) +
-    scale_y_continuous(expand = c(0,0), labels = scales::percent) + theme(legend.position="top") +
+    theme(text = element_text(size = 13)) +
+    scale_y_continuous(expand = c(0,0), labels = scales::percent) + theme(legend.position = "top") +
     scale_x_date(expand = c(0,0))# + facet_wrap(. ~ variable, scales = "free") does not work owing to too many levels
 })
 
+# separate plots owing to legend for geom_bar but no legends for geom_boxplot
 pp <- plot_grid(p[[1]],p[[2]], ncol = 1, nrow = 2, align = "v")
 pp <- plot_grid(p1, pp, rel_widths = c(4,1))
-ggsave("plots/DescrVars.pdf", plot = pp, width = 30, height = 20, dpi = 300)
+ggsave("plots/DescrVars.pdf", plot = pp, width = 22.5, height = 15, dpi = 200)
 
 ## kernel densities for p = 1/cc for last point in time of cumulative g-forms
 
@@ -243,21 +247,21 @@ plot_w <- function(wg) {
     scale_color_manual(name = "Mean Weight",
                        values = c("(-Inf,0.01]" = "red","(0.01,1]" = "black"), 
                        labels = c("[0,0.01)", "[0.01,1]"), guide = FALSE) +
-    ggtitle("") + theme_light() + 
+    ggtitle("") + theme_light() + theme(text = element_text(size = 14)) +
     scale_y_continuous(limits = c(0, 1), breaks = seq(0,1,0.1)) + xlab("")
 }
 
 Q_p <- plot_w(Q_w) + theme(axis.text.x = element_blank(),
                            plot.title = element_text(hjust = 0.5), 
-                           axis.text.y = element_text(size = 6),
-                           plot.margin = unit(c(-0.5,0.1,-0.52,0.1), "cm"), 
+                           axis.text.y = element_text(size = 10),
+                           plot.margin = unit(c(-0.5,0.1,-0.52,0.3), "cm"), 
                            axis.title.y = element_text(size = 10))  +
                            ylab("Q-Weights")
 
 g_p <- plot_w(g_w) + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67.5 angle
-                           axis.text.x = element_text(size = 4, angle = 56.25, hjust = 1, vjust = 1,face = "bold"), 
-                           axis.text.y = element_text(size = 6),
-                           plot.margin = unit(c(-0.52,0.1,-0.4,0.1), "cm"), 
+                           axis.text.x = element_text(size = 6, angle = 56.25, hjust = 1, vjust = 1,face = "bold"), 
+                           axis.text.y = element_text(size = 10),
+                           plot.margin = unit(c(-0.52,0.1,-0.4,0.3), "cm"), 
                            axis.title.y = element_text(size = 10)) +
                            ylab("g-Weights")
 
