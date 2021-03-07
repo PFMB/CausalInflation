@@ -31,7 +31,7 @@ p_v <- function(x) paste(x, collapse = "+")
 
 # Interventions
 past_inf <- startsWith(nodes, "PastInflation")
-dyn_intv <- (dat[,past_inf] < 0 | dat[,past_inf] > 5)*1
+dyn_intv <- (dat[,past_inf] <= 0 | dat[,past_inf] >= 5)*1
 stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_inf]))), ncol = 11)
 stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_inf]))), ncol = 11)
 

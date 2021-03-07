@@ -32,31 +32,31 @@ setnames(d, names(d)[-c(1,2)], proxies[names(d)[-c(1,2)]])
 cat_var <- c("PolInstitution","CBIndependence")
 d_num <- setDT(r_shp(d[!colnames(d) %in% cat_var]))
 
-## numeric variables might need a log trafo to be on a good scale
+## numeric variables might need a log trafo to be on a proper scale for interpretation
 
 d_num[,log_value := if(all(value > 10)) log(value) else value, by = variable]
-#d_num[,is_bigger := if(all(value > 10)) TRUE else FALSE, by = variable]
 
-p <- ggplot(d_num, aes(x = Year, y = log_value, group = Year)) + 
+p1 <- ggplot(d_num, aes(x = Year, y = log_value, group = Year)) + 
   geom_boxplot(outlier.size = 0.8) + 
   facet_wrap(. ~ variable, scales = "free") +
   theme_bw() + ylab("") + theme(text = element_text(size = 12))
-#ggsave("plots/DescrBoxPlot.pdf", plot = p, width = 15, height = 15, dpi = 150)
 
 ## you might want to add more variables to cat_var (e.g. CBTransparency)
+cols <- c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f')
 
 p <- lapply(cat_var, function(ca) {
   d_cat <- setDT(r_shp(d[colnames(d) %in% c("id","Year", ca)]))
   d_cat[ ,value := factor(value)]
   d_cat[ ,Year := as.Date(paste0(Year, '-01-01'))]
-  ggplot(d_cat, aes(x = Year, fill = value)) +  scale_fill_jco() + 
+  ggplot(d_cat, aes(x = Year, fill = value)) + scale_fill_manual(values = cols) +
     geom_bar(position = "fill") + theme_minimal() + labs(y = "", fill = ca) +
     scale_y_continuous(expand = c(0,0), labels = scales::percent) + theme(legend.position="top") +
     scale_x_date(expand = c(0,0))# + facet_wrap(. ~ variable, scales = "free") does not work owing to too many levels
 })
 
-pp <- plot_grid(p[[1]],p[[2]], ncol = 2, align = "h")
-#ggsave("plots/DescrStackedBar.pdf", plot = pp, width = 15, height = 15, dpi = 150)
+pp <- plot_grid(p[[1]],p[[2]], ncol = 1, nrow = 2, align = "v")
+pp <- plot_grid(p1, pp, rel_widths = c(4,1))
+ggsave("plots/DescrVars.pdf", plot = pp, width = 30, height = 20, dpi = 300)
 
 ## kernel densities for p = 1/cc for last point in time of cumulative g-forms
 
@@ -264,3 +264,22 @@ g_p <- plot_w(g_w) + theme(plot.title = element_text(hjust = 0.5), # 22.5 and 67
 # save by hand 7 x 16 inch under "plots/SL_weights.pdf"
 # the higher the inch per dim, the smaller the objects appear later on, however, keep ratio
 grid.draw(rbind(ggplotGrob(Q_p), ggplotGrob(g_p), size = "last"))
+
+### Support for dynamic treatment
+
+d <- setDT(readRDS("descript_infl.RDS")[[1]])
+d[, dyn_intv := as.integer(past_infl <= 0 | past_infl >= 5)]
+d[, followed_dyn := as.integer(binary_cbi == dyn_intv)]
+
+d <- d[,.(id,year,followed_dyn)]
+d[, year := as.Date(paste0(year,"-01-01"))]
+setnames(d, c("id","year","followed_dyn"), c("Country","Year","Followed"))
+
+p <- ggplot(d, aes(x = Year, y = Country, fill = Followed)) + geom_tile(color = "gray") +
+  scale_fill_gradient(low="white", high="navy") + 
+  theme_minimal() +
+  scale_x_date(expand = c(0,0)) + 
+  theme(legend.position = "none", axis.text.y = element_blank())
+ggsave("plots/DynmTreat.pdf", plot = p, width = 15, height = 5, dpi = 300)
+
+
