@@ -115,7 +115,7 @@ p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha =
     theme(legend.position = "top", legend.title = element_blank(), plot.margin = unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
-#ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### Descriptive CBI: Switching regimes
 
@@ -127,7 +127,7 @@ d_CBI$`CBIndependence (non-binary)` <- raw_cbi
 # most diverged color palette
 qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
 col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-col_vector <- unique(col_vector)[1:59]
+col_vector <- unique(col_vector)[1:60]
 #col_vector <- rainbow(59)
 
 (p33 <- ggplot(d_CBI, aes(x = Year, y = `CBIndependence (non-binary)`, color = id)) + 
@@ -138,7 +138,7 @@ col_vector <- unique(col_vector)[1:59]
     theme(legend.position = "none", plot.margin = unit(c(0.3,0.6,0.1,0.1),"cm")) +
     scale_y_continuous(expand = c(0,0), limits = c(0,1)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
 
-# 9 countries switched regimes (all switched from 0 to 1) between 1998-2010
+# 10 countries switched regimes (all switched from 0 to 1) between 1998-2010
 sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
 
 # do you really need to compare/follow the lines between p33 and p44?
@@ -153,8 +153,7 @@ sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
   scale_y_continuous(expand = c(0,0)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
 
 pp <- plot_grid(p33,p44, ncol = 2, align = "h")
-
-#ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
 
 ### ATE results for all levels and strategies
 
@@ -193,9 +192,9 @@ d <- readRDS("results/ATEs.RDS")
 (high <- plot_ATE(d[,seq(2,18,3)]))
 (low <- plot_ATE(d[,seq(3,18,3)]))
 
-#ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
-#ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
-#ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
+ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
+ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
+ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
 
 ### CC summmary stats (table 1)
 
@@ -272,7 +271,7 @@ grid.draw(rbind(ggplotGrob(Q_p), ggplotGrob(g_p), size = "last"))
 ### Support for dynamic treatment
 
 d <- setDT(readRDS("descript_infl.RDS")[[1]])
-d[, dyn_intv := as.integer(past_infl <= 0 | past_infl >= 5)]
+d[, dyn_intv := as.integer(past_median <= 0 | past_median >= 5)]
 d[, followed_dyn := as.integer(binary_cbi == dyn_intv)]
 
 d <- d[,.(id,year,followed_dyn)]

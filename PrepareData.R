@@ -6,7 +6,7 @@ library(plyr)
 #------ MERGE TWO DATA SOURCES ------#
 
 # 5 imputed data.frames from Amelia II (Amelia Output)
-load(file = "infl_XYI_imputed.RData")
+load(file = "/Users/flipst3r/RStHomeDir/GitHub/InflTSCS/data/3ReadyData/3_infl_XYI_imp.RData")
 # successful imputation may be checked first. See diagnostic plots!
 a.out <- infl_XYI$imputations
 d <- a.out$imp1[,c("id","year","class_wb")] # for subsetting by income class
@@ -28,7 +28,7 @@ infl <- a.out$imp1[, c("id", "year", meas_full_var), drop = FALSE]
 nrow(na.omit(infl))
 
 # some variables were not imputed, i.e. CBI and Transparency.
-load("infl_Z.Rdata")
+load("/Users/flipst3r/RStHomeDir/GitHub/InflTSCS/data/3ReadyData/5_infl_Z.Rdata")
 infl_Z <- na.omit(infl_Z[, c("id", "year", meas_red_var), drop = FALSE])
 
 # countries participating in the study

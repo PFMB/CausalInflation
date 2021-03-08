@@ -3,7 +3,7 @@ set.seed(1)
 path <- "~/RStHomeDir/GitHub/CausalInflation/"
 
 # load 5 imputed data.frames that are analyzed
-load(paste0(path, "causalinfl_revised.RData"))
+load(paste0(path, "causalinfl.RData"))
 dat <- infl$all[[1]]
 nodes <- names(dat)
 
@@ -30,8 +30,8 @@ mod_y <- function(st, y) {
 p_v <- function(x) paste(x, collapse = "+")
 
 # Interventions
-past_inf <- startsWith(nodes, "PastInflation")
-dyn_intv <- (dat[,past_inf] <= 0 | dat[,past_inf] >= 5)*1
+past_median <- startsWith(nodes, "PastInflation")
+dyn_intv <- (dat[,past_median] <= 0 | dat[,past_median] >= 5)*1
 stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_inf]))), ncol = 11)
 stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_inf]))), ncol = 11)
 
