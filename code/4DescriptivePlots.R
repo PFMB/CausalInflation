@@ -162,8 +162,9 @@ ggsave(paste0(path,"plots/CBI_switch.pdf"), plot = pp, width = 15, height = 5, d
 plot_ATE <- function(res) {
   
   res <- data.frame(t(res[c(1,3,4),]))
+  res <- res[c(5,6,1,2,3,4),] # ordering inside manusscript
   
-  strat <- c("ScreenLearn","EconDAG","PlainDAG")
+  strat <- c("PlainDAG","ScreenLearn","EconDAG")
   res$Strategy <- factor(rep(strat, each = 2), levels = strat) # ensures x-axis ordering 
   res$Regime <- rep(c("Static", "Dynamic"), 3)
   res$Regime <- factor(res$Regime, levels = c("Static","Dynamic"),
