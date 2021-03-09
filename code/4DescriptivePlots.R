@@ -10,10 +10,12 @@ library(gridExtra) # arranges plots
 library(reshape2) # rearrange data for ggplot
 library(grid) # grid.newpage grid.draw 
 
+path <- "/Users/flipst3r/RStHomeDir/GitHub/CausalInflation/"
+
 ## Plot summary stats for the supplamentary material/appendix
 
 r_shp <- function(x) reshape2::melt(x, id.vars = c("id","Year"))
-d <- readRDS("descript_infl.RDS")[[1]]
+d <- readRDS(paste0(path,"data/DescriptInfl.RDS"))[[1]]
 sapply(d, typeof)
 colMeans(d[sapply(d, is.numeric)])
 
@@ -60,11 +62,11 @@ p <- lapply(cat_var, function(ca) {
 # separate plots owing to legend for geom_bar but no legends for geom_boxplot
 pp <- plot_grid(p[[1]],p[[2]], ncol = 1, nrow = 2, align = "v")
 pp <- plot_grid(p1, pp, rel_widths = c(4,1))
-ggsave("plots/DescrVars.pdf", plot = pp, width = 22.5, height = 15, dpi = 200)
+ggsave(paste0(path,"plots/DescrVars.pdf"), plot = pp, width = 22.5, height = 15, dpi = 200)
 
 ## kernel densities for p = 1/cc for last point in time of cumulative g-forms
 
-e <- readRDS("results/Estimations.RDS")
+e <- readRDS(paste0(path,"results/Estimations.RDS"))
 e <- e[seq(1,18,3)] # discard high/low since all is the primary est goal
 
 cum_g <- lapply(e, function(est_str) {
@@ -115,7 +117,7 @@ p22 <- ggplot(p2,aes(x = value, color = `Est. Strategy`)) + geom_density(alpha =
     theme(legend.position = "top", legend.title = element_blank(), plot.margin = unit(c(0.1,0.6,0.1,0.1),"cm"))
 
 pp <- plot_grid(p11,p22, ncol = 2, align = "h")
-ggsave("plots/Cum_g.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+ggsave(paste0(path,"plots/Cum_g.pdf"), plot = pp, width = 15, height = 5, dpi = 150)
 
 ### Descriptive CBI: Switching regimes
 
@@ -153,7 +155,7 @@ sum(!d_CBI[,sum(CBIndependence), by = list(id)]$V1 %in% c(0,13))
   scale_y_continuous(expand = c(0,0)) + geom_hline(yintercept = 0.45, linetype = "dashed"))
 
 pp <- plot_grid(p33,p44, ncol = 2, align = "h")
-ggsave("plots/CBI_switch.pdf", plot = pp, width = 15, height = 5, dpi = 150)
+ggsave(paste0(path,"plots/CBI_switch.pdf"), plot = pp, width = 15, height = 5, dpi = 150)
 
 ### ATE results for all levels and strategies
 
@@ -186,19 +188,19 @@ plot_ATE <- function(res) {
   
 }
 
-d <- readRDS("results/ATEs.RDS")
+d <- readRDS(paste0(path,"results/ATEs.RDS"))
 
 (all <- plot_ATE(d[,seq(1,18,3)]))
 (high <- plot_ATE(d[,seq(2,18,3)]))
 (low <- plot_ATE(d[,seq(3,18,3)]))
 
-ggsave("plots/ATE_all.pdf", plot = all, width = 8, height = 3.5, dpi = 150)
-ggsave("plots/ATE_high.pdf", plot = high, width = 8, height = 3.5, dpi = 150)
-ggsave("plots/ATE_low.pdf", plot = low, width = 8, height = 3.5, dpi = 150)
+ggsave(paste0(path,"plots/ATE_all.pdf"), plot = all, width = 8, height = 3.5, dpi = 150)
+ggsave(paste0(path,"plots/ATE_high.pdf"), plot = high, width = 8, height = 3.5, dpi = 150)
+ggsave(paste0(path,"plots/ATE_low.pdf"), plot = low, width = 8, height = 3.5, dpi = 150)
 
 ### CC summmary stats (table 1)
 
-d <- readRDS("results/Estimations.RDS")
+d <- readRDS(paste0(path,"results/Estimations.RDS"))
 sel_row <- c("TruncShare","Mean","Max.")
 
 cc_stats <- function(est_str) {
@@ -218,7 +220,7 @@ xtable(low)
 
 ### Super learner weights
 
-d <- readRDS("results/Estimations.RDS")
+d <- readRDS(paste0(path,"results/Estimations.RDS"))
 
 # screen learner only since the most learner used
 SL_stat <- d$ScreenLearnSta_all
@@ -270,7 +272,7 @@ grid.draw(rbind(ggplotGrob(Q_p), ggplotGrob(g_p), size = "last"))
 
 ### Support for dynamic treatment
 
-d <- setDT(readRDS("descript_infl.RDS")[[1]])
+d <- setDT(readRDS(paste0(path,"data/DescriptInfl.RDS"))[[1]])
 d[, dyn_intv := as.integer(past_median <= 0 | past_median >= 5)]
 d[, followed_dyn := as.integer(binary_cbi == dyn_intv)]
 
@@ -279,10 +281,10 @@ d[, year := as.Date(paste0(year,"-01-01"))]
 setnames(d, c("id","year","followed_dyn"), c("Country","Year","Followed"))
 
 p <- ggplot(d, aes(x = Year, y = Country, fill = Followed)) + geom_tile(color = "gray") +
-  scale_fill_gradient(low="white", high="navy") + 
+  scale_fill_gradient(low = "white", high = "navy") + 
   theme_minimal() +
   scale_x_date(expand = c(0,0)) + 
   theme(legend.position = "none", axis.text.y = element_blank())
-ggsave("plots/DynmTreat.pdf", plot = p, width = 15, height = 5, dpi = 300)
+ggsave(paste0(path,"plots/DynmTreat.pdf"), plot = p, width = 15, height = 5, dpi = 300)
 
 

@@ -1,9 +1,8 @@
 rm(list = ls())
-set.seed(1)
-path <- "~/RStHomeDir/GitHub/CausalInflation/"
+path <- "/Users/flipst3r/RStHomeDir/GitHub/CausalInflation/"
 
 # load 5 imputed data.frames that are analyzed
-load(paste0(path, "causalinfl.RData"))
+load(paste0(path, "data/CausInfl.RData"))
 dat <- infl$all[[1]]
 nodes <- names(dat)
 
@@ -32,8 +31,8 @@ p_v <- function(x) paste(x, collapse = "+")
 # Interventions
 past_median <- startsWith(nodes, "PastInflation")
 dyn_intv <- (dat[,past_median] <= 0 | dat[,past_median] >= 5)*1
-stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_inf]))), ncol = 11)
-stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_inf]))), ncol = 11)
+stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_median]))), ncol = 11)
+stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_median]))), ncol = 11)
 
 ## PLAIN
 
@@ -114,4 +113,4 @@ ltmle_prep <- list(nodes = list("A" = A_nod, "L" = L_nod, "Y" = y_nod, "base" = 
                    form_econ = list("g_econ" = g_econ, "Q_econ" = Q_econ),
                    invterventions = list("stat0" = stat_intv_0, "stat1" = stat_intv_1,
                                          "dyn_intv" = dyn_intv))
-save(ltmle_prep, file = paste0(path,"NodesFormInterv.RData"))
+save(ltmle_prep, file = paste0(path,"/data/NodesFormInterv.RData"))

@@ -20,7 +20,7 @@ The repository cotains the following files:
 
 * `causalinfl.RData` contains the 5 imputed data sets that were used in `EstimateData.R`. It is composed of the merged and processed data sets `infl_XYI_imputed.RData` and `infl_Z.RData`.
 
-* `/plots` holds the plots presented in the paper and `/results` contains the results from the [HPC cluster](https://scicomp.ethz.ch/wiki/Euler) run.  The final run was conducted on the 5th of March, 2021.
+* `/plots` holds the plots presented in the paper and `/results` contains the results from the [HPC cluster](https://scicomp.ethz.ch/wiki/Euler) run.
 
 * `CausalOrder.csv` contains the topological ordering that has to be assigned based on the DAG presented in the manuscript.
 
@@ -28,4 +28,4 @@ The repository cotains the following files:
 
 * `DescriptivePlots.R` reproduces the plots and tables presented in the main text and the appendix of the paper.
 
-The file `EstimateData.R` was run with `bsub -n 5 -W 24:00 -N -B -R "rusage[mem=16384]" 'R --vanilla --slave` `< $HOME/CausalInflation/EstimateData.R > causal_log_2'`.
+The run for the results in the paper was conducted on the 8th of March, 2021 and is based on an imputation run from the very same day containing 60 countries. The file `EstimateData.R` was run with `bsub -n 5 -W 24:00 -N -B -R "rusage[mem=16384]" 'R --vanilla --slave` `< $HOME/CausalInflation/EstimateData.R > causal_log'`.

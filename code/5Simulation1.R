@@ -7,7 +7,7 @@ library(ltmle)
 set.seed(1)
 
 # insert working directory here
-setwd("")
+path <- "/Users/flipst3r/RStHomeDir/GitHub/CausalInflation/"
 
 # setup
 runs      <- 2000  # number of simulation runs
@@ -75,10 +75,12 @@ true_ATE <- eval.target(D, data = counter_dat)$res
 
 # Initiate cluster
 cl <- makeCluster(n_cluster, outfile = "")
-clusterSetRNGStream(cl = cl, iseed = 1)
+#clusterSetRNGStream(cl = cl, iseed = 1)
 clusterEvalQ(cl, library(ltmle))
 
 exe_Sim1 <- function(x) {
+  
+  set.seed(1)
   SL.Set <- c("SL.glm")
   attr(SL.Set, "return.fit") <- TRUE
 
@@ -113,7 +115,7 @@ t_ime <- system.time({
 (attributes(Sim1)$time <- t_ime)
 (attributes(Sim1)$sessinfo <- sessionInfo())
 (attributes(Sim1)$seed <- .Random.seed)
-saveRDS(Sim1, file = "Sim1.RDS")
+saveRDS(Sim1, file = paste0(path,"data/Sim1.RDS"))
 
 ## g-Model is correctly and Q-Model is misspecified
 
@@ -126,6 +128,8 @@ mis_Q_form[3] <- c("Q.kplus1 ~ A_2000 + Y_2000 + A_2001 + Y_2001 + A_2002")
 clusterExport(cl, "mis_Q_form")
 
 exe_Sim1_mis <- function(x) {
+  
+  set.seed(1)
   SL.Set <- c("SL.glm")
 
   # define static interventions
@@ -158,13 +162,13 @@ t_ime <- system.time({
 (attributes(Sim1_mis)$time <- t_ime)
 (attributes(Sim1_mis)$sessinfo <- sessionInfo())
 (attributes(Sim1_mis)$seed <- .Random.seed)
-saveRDS(Sim1_mis, file = "Sim1Mis.RDS")
+saveRDS(Sim1_mis, file = paste0(path,"data/Sim1Mis.RDS"))
 
 stopCluster(cl)
 
 # ------- PRINT RESULTS ------- #
 
-source("CalcBiasCP.R")
+source(paste0(path,"code/7CalcBiasCP.R"))
 
 cat("GLM: correct Q-formula: \n")
 (get_bias_cp(do.call("c", Sim1), true_ATE))

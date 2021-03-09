@@ -11,7 +11,7 @@ library(parallel)
 set.seed(1)
 
 # insert working directory here
-setwd("")
+path <- "/Users/flipst3r/RStHomeDir/GitHub/CausalInflation/"
 
 # setup
 runs      <- 1500  # number of simulation runs (take into account failing estimations)
@@ -125,7 +125,7 @@ get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$ef
 
 # Initiate cluster
 cl <- makeCluster(n_cluster, outfile = "")
-clusterSetRNGStream(cl = cl, iseed = 1)
+#clusterSetRNGStream(cl = cl, iseed = 1)
 
 # define static interventions
 treatment_1 <- matrix(1, nrow = n_obs, ncol = 6)
@@ -142,9 +142,11 @@ clusterExport(cl = cl, list(
 # ----- Run Simulation ----- #
 
 exe <- function(y) {
+  
+  set.seed(1)
   cat("Estimation with correct Q-formulas starts.\n")
 
-  source("LearnerLibrary.R") # individual learner
+  source(paste0(path,"code/LearnerLibrary.R")) # individual learner
 
   L_set <- try(y$learner, silent = TRUE)
   x <- try(y$data, silent = TRUE)
@@ -208,11 +210,11 @@ stopCluster(cl)
 (attributes(Sim2)$time <- t_ime)
 (attributes(Sim2)$sessinfo <- sessionInfo())
 (attributes(Sim2)$seed <- .Random.seed)
-saveRDS(Sim2, file = "Sim2.RDS")
+saveRDS(Sim2, file = paste0(path,"data/Sim2.RDS"))
 
 # ------- PRINT RESULTS ------- #
 
-source("CalcBiasCP.R")
+source(paste0("code/7CalcBiasCP.R"))
 
 # seperate results by learner sets
 Sim2_L1 <- Sim2[1:runs]

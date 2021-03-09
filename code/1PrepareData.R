@@ -2,11 +2,12 @@ rm(list = ls()) # clear enviroment
 graphics.off() # clear plots
 library(mFilter) # output gap
 library(plyr)
+path <- "/Users/flipst3r/RStHomeDir/GitHub/"
 
 #------ MERGE TWO DATA SOURCES ------#
 
 # 5 imputed data.frames from Amelia II (Amelia Output)
-load(file = "/Users/flipst3r/RStHomeDir/GitHub/InflTSCS/data/3ReadyData/3_infl_XYI_imp.RData")
+load(file = paste0(path,"InflTSCS/data/3ReadyData/3_infl_XYI_imp.RData"))
 # successful imputation may be checked first. See diagnostic plots!
 a.out <- infl_XYI$imputations
 d <- a.out$imp1[,c("id","year","class_wb")] # for subsetting by income class
@@ -28,7 +29,7 @@ infl <- a.out$imp1[, c("id", "year", meas_full_var), drop = FALSE]
 nrow(na.omit(infl))
 
 # some variables were not imputed, i.e. CBI and Transparency.
-load("/Users/flipst3r/RStHomeDir/GitHub/InflTSCS/data/3ReadyData/5_infl_Z.Rdata")
+load(file = paste0(path,"InflTSCS/data/3ReadyData/5_infl_Z.RData"))
 infl_Z <- na.omit(infl_Z[, c("id", "year", meas_red_var), drop = FALSE])
 
 # countries participating in the study
@@ -87,7 +88,8 @@ for (i in 1:5) {
 }
 
 # for descriptive statistics
-saveRDS(a.out, file = "descript_infl.RDS")
+saveRDS(a.out, file = paste0(path,"CausalInflation/data/DescriptInfl.RDS"))
+unique(a.out$imp1$id) # countries in the study
 
 # drop variables that are not needed for now
 for (i in 1:5) {
@@ -131,7 +133,7 @@ make_causal <- function(a_d){
   for(idx in 1:length(a_d_c)) names(a_d_c[[idx]]) <- nms
   
   # additional structural assumption given through ordering
-  causal_ord <- unlist(read.csv("CausalOrder.csv", stringsAsFactors = FALSE, header = FALSE))
+  causal_ord <- unlist(read.csv(paste0(path,"CausalInflation/data/CausalOrder.csv"), stringsAsFactors = FALSE, header = FALSE))
   
   # variables given in the data set that are not needed for the analysis
   # since they are not defined in the structural model (DAG)
@@ -146,5 +148,7 @@ high_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% h_igh,]))
 low_countries <- make_causal(lapply(a.out, function(x) x[x$id %in% l_ow,]))
 
 infl <- list("all" = all_countries, "high" = high_countries, "low" = low_countries)
-save(infl, file = "causalinfl.RData")
+attr(infl,"info") <- sessionInfo()
+attr(infl,"time") <- Sys.time()
+save(infl, file = paste0(path,"CausalInflation/data/CausInfl.RData"))
 

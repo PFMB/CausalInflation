@@ -13,22 +13,22 @@ path <- "/cluster/home/phibauma/CausalInflation/"
 n_cluster <- 5
 
 # load 5 imputed data.frames that are analyzed
-load(paste0(path,"causalinfl.RData"))
+load(paste0(path,"data/CausInfl.RData"))
 all <- infl$all # needed so that get() works with characters/strings in the estimation environment
 high <- infl$high
 low <- infl$low
 
 # extract learner weights
-source(paste0(path,"WeightsSummary.R"))
+source(paste0(path,"/code/31WeightsSummary.R"))
 
 # formula to extract ATE
 get_ATE <- function(out, est = "tmle") unclass(summary(out, estimator = est))$effect.measures$ATE
 
 # Learner Sets: SL.Est_Theory, SL.Est_Data
-load(paste0(path,"SelectedLearner.RData"))
+load(paste0(path,"/data/SelectedLearner.RData"))
 
 # Nodes, g-/Q-formulas and interventions
-load(paste0(path,"NodesFormInterv.RData")) 
+load(paste0(path,"/data/NodesFormInterv.RData")) 
 int <- ltmle_prep$invterventions
 stat_intv_0 <- int$stat0
 stat_intv_1 <- int$stat1
@@ -45,7 +45,7 @@ cl <- makeCluster(n_cluster, outfile = "")
 #clusterSetRNGStream(cl = cl, iseed = 1) 
 clusterEvalQ(cl, library(ltmle))
 
-source(paste0(path,"LearnerLibrary.R"))
+source(paste0(path,"/code/32LearnerLibrary.R"))
 #SL.Est_Theory <- SL.Est_Data <- c("SL.glm","SL.mean") # for fast test runs
 SL.Est_Theory <- SL.Est_Theory[-10] # gbm consumes too much memory and does not help much either
 
@@ -59,7 +59,7 @@ est <- function(d_s, Q_fm, g_fm, treat, cntrl, SL_lib) {
   
   set.seed(1)
   seed <- .Random.seed
-  source(paste0(path,"LearnerLibrary.R")) # for all manual learners
+  source(paste0(path,"/code/32LearnerLibrary.R")) # for all manual learners
   
   res <- tryCatch(
     {
@@ -116,7 +116,7 @@ res <- lapply(est_spec, function(sp) {
   ids <- rownames(d[[1]])
   is_static <- is.null(rownames(treat))
   if (!is_static) treat <- treat[rownames(treat) %in% ids,] 
-  if (is_static & length(ids) < 59) treat <- treat[1:length(ids),]
+  if (is_static & length(ids) < 60) treat <- treat[1:length(ids),]
   cntrl <- cntrl[1:nrow(d[[1]]),]
   r <- parLapply(cl, d, est, Q_fm = Q_fm, g_fm = g_fm, treat = treat, cntrl = cntrl, SL_lib = SL_lib)
   attr(r,"MI") <- get_results(r)
@@ -127,3 +127,4 @@ stopCluster(cl)
 saveRDS(res, file = paste0(path,"/results/Estimations.RDS"))
 res <- sapply(res, function(x) attributes(x)$MI)
 saveRDS(res, file = paste0(path,"/results/ATEs.RDS"))
+
