@@ -7,10 +7,13 @@ dat <- infl$all[[1]]
 nodes <- names(dat)
 
 # 11 Q-forms
+# Note that due to the assumed two-year transmission cycle between A_{t-2} and Y_t,
+# the first Q-model is defined for Y_2000
 col_idx_Y <- startsWith(nodes, "ConsumerPrices")
 y_nod <- nodes[col_idx_Y][3:13]
 
 # 11 g-forms
+# similarly, the first g-model is defined for A_1998
 col_idx_A <- startsWith(nodes, "CBIndependence")
 A_nod <- nodes[col_idx_A]
 
