@@ -37,6 +37,9 @@ dyn_intv <- (dat[,past_median] <= 0 | dat[,past_median] >= 5)*1
 stat_intv_1 <- matrix(rep(1,prod(dim(dat[,past_median]))), ncol = 11)
 stat_intv_0 <- matrix(rep(0,prod(dim(dat[,past_median]))), ncol = 11)
 
+# ltmle asks for first variable in L/Y Block.
+# Thats the reason MoneySupply is specified in Q-form. Cf. data/CausalOrder.csv.
+
 ## PLAIN
 
 Q_base <- c(MoneySupply_1998 = paste0("Q.kplus1 ~", p_v(base_nod)," + CBIndependence_1998"),
@@ -71,7 +74,7 @@ g_base <- c(paste0("CBIndependence_1998 ~", p_v(base_nod)),
 # and so on...
 # treat econ cycles for each t separately. Cycle in t-1 does not have an impact on t. 
 # That is the reason that MoneySupply_2008 does not depend on any variable <2008.
-# and CBIndependence_2008 does not depend on any variabel <2007
+# and CBIndependence_2008 does not depend on any variable <2007
 
 # Q-form Econ
 Q_econ <- c(MoneySupply_1998 = "Q.kplus1 ~ Output_1998 + ConsumerPrices_1998 + PastInflation_1998 + TradeOpenness_1998 + CapitalOpenness_1998 + PublicDebt_1998 + 
