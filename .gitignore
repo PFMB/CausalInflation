@@ -6,3 +6,4 @@ data/
 InflData.RData
 infl_XYI_imputed.RData
 infl_Z.RData
+causalinfl.RData
