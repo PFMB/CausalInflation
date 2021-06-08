@@ -4,3 +4,4 @@
 .Ruserdata
 data/
 InflData.RData
+infl_XYI_imputed.RData
